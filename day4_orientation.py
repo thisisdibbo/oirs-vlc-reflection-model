@@ -154,7 +154,7 @@ print("  unmodellable in the prevailing channel model -- a second consequence")
 print("  of omitting the law of reflection.")
 
 # ---- figure ---------------------------------------------------------------
-fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.4), constrained_layout=True,
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.7), constrained_layout=True,
                          sharey=True)
 styles = {"face-up": ("-", "k"), "sitting, genie": ("--", "C0"),
           "sitting, blind": (":", "C0"), "walking, genie": ("--", "C1"),

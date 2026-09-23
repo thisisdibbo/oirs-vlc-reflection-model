@@ -85,7 +85,7 @@ print("  an artefact of the calibrated P_t -- it is present, and of the same")
 print("  order, at every power tested.")
 
 # --------------------------------------------------------------------------
-fig, axes = plt.subplots(1, 2, figsize=(9.6, 3.6), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.6), constrained_layout=True)
 P = [r[0] for r in rows]
 
 axes[0].plot(P, [r[1] for r in rows], "-o", ms=4, label="cosine model")

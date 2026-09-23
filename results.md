@@ -969,6 +969,124 @@ pre-upload checks.
 
 ---
 
+## 2026-09-23 — Day 18: release repository scaffolded and verified
+
+`README.md`, `LICENSE` (MIT, chosen by Mahin), `requirements.txt`,
+`.gitignore` and `CITATION.cff` written into the project folder. The repo is
+ready to push; nothing else is needed before the GitHub + Zenodo step, which is
+the last blocker on the final `\todo`.
+
+### Verified against a clean checkout, not assumed
+
+Copied **only** the 29 files the README lists into an empty directory and ran
+all nine experiment scripts there in fast mode. All nine passed and produced all
+11 figure PDFs. Nothing depends on a file the repo does not ship — which is the
+failure mode that makes a released repo useless, and it cannot be caught by
+running in the development folder.
+
+### Two details in `.gitignore` worth not undoing
+
+- `*.log` is ignored, but `!freeze_run.log` un-ignores the one log that matters.
+  Verified with `git check-ignore`: it comes out tracked. Without that line the
+  evidence for every number in the paper would have been silently excluded from
+  the release.
+- The timestamped figure copies that `save_fig` writes when a PDF viewer holds a
+  file open (`fig8_blockage_221841.pdf` and friends) are ignored by pattern, so
+  they cannot leak into a release again.
+
+`git status` on the clean checkout stages 52 files: 29 source + 11 figure PDFs +
+11 PNGs + `freeze_run.log`.
+
+### The README states the diffuse-flag asymmetry prominently
+
+Four scripts run with diffuse off (reproduction) and five with it on
+(extension). That looks like an inconsistency to anyone reading the code
+without the reasoning, so the README gives the reason and states the direction
+it cuts: enabling diffuse *shrinks* the staleness penalty and works against this
+paper's own argument.
+
+### What is left, in order
+
+1. `git init && git add -A && git commit && git remote add origin ... && git push`
+2. Zenodo: link the GitHub account, flip the switch for this repo, then cut a
+   GitHub **release** — the DOI is minted from the release, not from the push
+3. Paste the GitHub URL and Zenodo DOI into `main.tex` (two places) and
+   `CITATION.cff` (`repository-code`)
+4. Fill email and affiliation; delete `\newcommand{\todo}`
+5. Similarity check, then submit
+
+---
+
+## 2026-09-23 — Day 19: figures re-authored at final physical size
+
+Caught on a QC pass over the compiled Overleaf PDF, not by looking at the
+figures in isolation, which is why it survived the freeze.
+
+### The defect
+
+Every matplotlib figure was authored 24–34 cm wide and then typeset into a
+6.5 in (16.5 cm) text block by `width=\textwidth`. LaTeX therefore scaled each
+one by 0.44–0.62, and the 8 pt tick labels reached the page at:
+
+| figure | drawn width | tick size on the page |
+|---|---|---|
+| Fig. 7 staleness | 34.3 cm | **3.5 pt** |
+| Figs. 2, 4, 6, 10, 11 | 29.2 cm | 4.1 pt |
+| Figs. 3, 9 | 27.9 cm | 4.3 pt |
+| Fig. 12 | 24.4 cm | 4.9 pt |
+
+Elsevier's artwork guidance asks for roughly 7 pt minimum at final size. 3.5 pt
+is a production query at proof stage, and before that it is a referee squinting
+at the paper's central latency result.
+
+Figure 1 was unaffected: it is TikZ and scales with the document.
+
+### The fix
+
+Figures are now authored at the size they are printed. `figsize` widths set to
+6.5 in for full-width figures and 4.03 in for the two placed at
+`0.62\textwidth`; `fig4` is now drawn at 3.25 in and its `\includegraphics`
+width changed from `0.62` to `0.50\textwidth` to match. Every figure now
+typesets at a scale between 0.99 and 1.01.
+
+`publication_style()` retuned for the smaller canvas: base 8 pt, ticks 7 pt,
+legends 6.5 pt, line width 1.1. Its docstring now states the assumption and
+warns against raising `figsize` without raising the fonts, since that is
+exactly what caused this.
+
+**Result: smallest text on the page went from 3.5 pt to 6.9 pt.**
+
+### Layout work the narrower canvas forced
+
+- Fig. 2: panel titles collided. "Conventional VLC (no IRS)" → "Conventional
+  (no IRS)", and the two IRS titles shortened.
+- Fig. 7: the middle legend had six entries in two columns and overflowed the
+  canvas, which is what pushed the saved width to 7.55 in. Now one entry per
+  model with a note that markers encode speed.
+- Fig. 10: a two-line `suptitle` was wider than the figure and forced it to
+  7.46 in. Removed — the caption carries that framing anyway.
+- Fig. 4: the "IRS panel" legend sat on the heatmap; moved below the axes.
+
+### Verification
+
+Re-ran the full frozen set. **All ten headline numbers are byte-identical to
+the previous freeze** — 6.28 / 8.69 dB overstatement, 13.30 ± 1.72 dB staleness,
+2.24–2.58 dB pose value, 1.08 and 0.65 dB blockage, 14.07 dB compound, 4.04 →
+6.38 dB across K. This was a rendering change and nothing else, which is what
+running from `freeze.py` with fixed seeds guarantees.
+
+Paper rebuilds at **30 pages** (up from 29: the shorter figures reflow the
+text), zero errors, zero undefined references or citations.
+
+### One thing NOT to act on
+
+The local build reports 2 Type 3 fonts on the Highlights page. The user's
+Overleaf build of the same source reports **zero**. This is a bitmap-font
+fallback in this container's TeX Live, not a defect in the source. Check it
+again on the Overleaf PDF after re-uploading; that is the build that counts.
+
+---
+
 ## Contribution summary (for the abstract and intro)
 
 1. A single-cosine IRS channel model (base paper Eq. 1 + Eq. 8) omits the law

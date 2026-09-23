@@ -89,12 +89,12 @@ for model in ("cosine", "specular"):
           f"in {100*frac:5.1f}% of draws")
 
 # ---- figures --------------------------------------------------------------
-fig, axes = plt.subplots(1, 3, figsize=(15, 4.3), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.2), constrained_layout=True)
 vmin = min(snr_conv.min(), results["specular"]["snr"].min())
 vmax = max(snr_conv.max(), results["cosine"]["snr"].max())
-panels = [(snr_conv, "Conventional VLC (no IRS)"),
-          (results["cosine"]["snr"], "IRS, base-paper cosine model"),
-          (results["specular"]["snr"], "IRS, specular reflection")]
+panels = [(snr_conv, "Conventional (no IRS)"),
+          (results["cosine"]["snr"], "Cosine model"),
+          (results["specular"]["snr"], "Specular reflection")]
 for ax, (data, title) in zip(axes, panels):
     im = ax.pcolormesh(X, Y, data.reshape(X.shape), shading="gouraud",
                        vmin=vmin, vmax=vmax, cmap="viridis")
@@ -102,18 +102,19 @@ for ax, (data, title) in zip(axes, panels):
                s=120, c="white", edgecolors="k", zorder=3)
     ax.scatter(cfg.panel_centres[:, 0], cfg.panel_centres[:, 1], marker="s",
                s=60, c="orangered", edgecolors="k", zorder=3)
-    ax.set_title(f"{title}\n{data.min():.1f} – {data.max():.1f} dB", fontsize=10)
+    ax.set_title(f"{title}\n{data.min():.1f} – {data.max():.1f} dB")
     ax.set_xlabel("x [m]"); ax.set_ylabel("y [m]"); ax.set_aspect("equal")
 fig.colorbar(im, ax=axes, label="electrical SNR [dB]", shrink=0.9)
 save_fig(fig, "fig2_model_comparison")
 
-fig2, ax = plt.subplots(figsize=(6.2, 4.4), constrained_layout=True)
+fig2, ax = plt.subplots(figsize=(4.03, 3.0), constrained_layout=True)
 pc = ax.pcolormesh(X, Y, gap.reshape(X.shape), shading="gouraud", cmap="magma")
 ax.scatter(cfg.panel_centres[:, 0], cfg.panel_centres[:, 1], marker="s",
            s=60, c="cyan", edgecolors="k", zorder=3, label="IRS panel")
 ax.set_xlabel("x [m]"); ax.set_ylabel("y [m]"); ax.set_aspect("equal")
-ax.set_title("SNR overstated by omitting the law of reflection", fontsize=10)
-ax.legend(fontsize=8)
+ax.set_title("SNR overstated by omitting the law of reflection")
+ax.legend(loc="upper right", bbox_to_anchor=(1.0, -0.12),
+          handlelength=1.2, borderpad=0.3, frameon=False)
 fig2.colorbar(pc, ax=ax, label="cosine model − specular [dB]")
 save_fig(fig2, "fig4_overstatement")
 print("\nwrote fig2_model_comparison.* and fig4_overstatement.*")

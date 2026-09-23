@@ -131,7 +131,7 @@ print("   measured staleness penalty -- adding realism here helps the base")
 print("   paper's position, which is worth saying plainly.")
 
 # ---- figure ---------------------------------------------------------------
-fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.3), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.7), constrained_layout=True)
 for j, model in enumerate(("cosine", "specular")):
     ax = axes[j]
     for label, _, _ in SCENARIOS:

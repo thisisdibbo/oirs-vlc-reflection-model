@@ -108,7 +108,7 @@ print("  penalty is orders of magnitude above the cosine model's, which stays")
 print("  near zero at every latency tested.")
 
 # ---- figure ---------------------------------------------------------------
-fig, axes = plt.subplots(1, 3, figsize=(16, 4.3), constrained_layout=True)
+fig, axes = plt.subplots(1, 3, figsize=(6.5, 2.2), constrained_layout=True)
 
 # (a) one example time series
 tr = make_trace(cfg, DURATION, DT, 1.0, ACTIVITY, np.random.default_rng(SEED0))
@@ -120,9 +120,10 @@ for ms, c in ((50, "C1"), (500, "C3")):
                  label=rf"$\tau$ = {ms} ms")
 axes[0].set_xlabel("time [s]")
 axes[0].set_ylabel("electrical SNR [dB]")
-axes[0].set_title("Specular, walking 1.0 m/s, one trace", fontsize=10)
+axes[0].set_title("Specular, 1.0 m/s, one trace")
 axes[0].grid(alpha=.3)
-axes[0].legend(fontsize=8, loc="lower right")
+axes[0].legend(loc="lower right", handlelength=1.4, borderpad=0.3,
+                labelspacing=0.25)
 # A tilted PD can drop every ray outside the FoV, giving zero power and a
 # -300 dB sentinel. Those are real total outages, but plotting them crushes
 # the axis, so clip and mark their rate instead.
@@ -133,7 +134,7 @@ if dead:
     axes[0].annotate(f"{100*dead:.1f}% of samples: total outage\n"
                      f"(all rays outside FoV, clipped)",
                      xy=(0.03, 0.04), xycoords="axes fraction",
-                     fontsize=7, color="0.35")
+                     fontsize=5.5, color="0.35")
 
 # (b) staleness, mean +/- std
 marks = {0.5: "o", 1.0: "s", 1.5: "^"}
@@ -142,30 +143,34 @@ for model in ("cosine", "specular"):
     ls = "--" if model == "cosine" else "-"
     for speed in SPEEDS:
         mu, sd = stats[(model, speed)]
-        axes[1].plot(TAUS_MS, mu, ls, marker=marks[speed], ms=4, color=col,
-                     label=f"{model}, {speed} m/s")
+        axes[1].plot(TAUS_MS, mu, ls, marker=marks[speed], ms=3, color=col,
+                     label=f"{model}, {speed} m/s" if speed == 1.0 else None)
         axes[1].fill_between(TAUS_MS, mu - sd, mu + sd, color=col, alpha=.12)
 axes[1].axvspan(*cfg.mirror_response_ms, color="grey", alpha=.18)
-axes[1].annotate("actuator spec\n(base paper, p.8)", xy=(11, 13.5),
-                 fontsize=7.5, color="0.35")
+axes[1].annotate("actuator\nspec", xy=(11, 8.0), fontsize=5.5, color="0.35")
 axes[1].set_xscale("log")
 axes[1].set_xlabel(r"control latency $\tau$ [ms]")
 axes[1].set_ylabel(r"$\Delta_{\rm stale}$ [dB]")
-axes[1].set_title(f"Mean $\\pm$ 1 s.d. over {N_SEEDS} traces", fontsize=10)
+axes[1].set_title(f"Mean $\\pm$ 1 s.d., {N_SEEDS} traces")
 axes[1].grid(alpha=.3, which="both")
-axes[1].legend(fontsize=7, ncol=2, loc="center left")
+axes[1].legend(loc="upper left", handlelength=1.6, borderpad=0.3,
+               labelspacing=0.25)
+axes[1].text(0.97, 0.30, "markers: 0.5 / 1.0 / 1.5 m/s", fontsize=5.5,
+             color="0.4", ha="right", transform=axes[1].transAxes)
 
 # (c) robustness to acceptance
 for acc in ACCEPTS:
     mu, _ = acc_stats[acc]
-    axes[2].plot(TAUS_MS, mu, "-o", ms=3.5, label=f"{acc:g}°")
-axes[2].plot(TAUS_MS, cos_ref, "k--", lw=1.4, label="cosine model")
+    axes[2].plot(TAUS_MS, mu, "-o", ms=2.5, label=f"{acc:g}°")
+axes[2].plot(TAUS_MS, cos_ref, "k--", lw=1.2, label="cosine")
 axes[2].axvspan(*cfg.mirror_response_ms, color="grey", alpha=.18)
 axes[2].set_xscale("log")
 axes[2].set_xlabel(r"control latency $\tau$ [ms]")
 axes[2].set_ylabel(r"$\Delta_{\rm stale}$ [dB]")
-axes[2].set_title("Sensitivity to assumed mirror acceptance", fontsize=10)
+axes[2].set_title("Sensitivity to mirror acceptance")
 axes[2].grid(alpha=.3, which="both")
-axes[2].legend(fontsize=7, title="accept_floor", title_fontsize=7)
+axes[2].legend(loc="lower right", ncol=2, title=r"$\alpha_{\min}$",
+               title_fontsize=6, handlelength=1.2, borderpad=0.3,
+               labelspacing=0.2, columnspacing=0.8)
 
 print("\nwrote:", ", ".join(save_fig(fig, "fig7_staleness")))

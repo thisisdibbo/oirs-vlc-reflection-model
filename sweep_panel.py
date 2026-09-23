@@ -80,7 +80,7 @@ print(f"\n  overstatement across the whole sweep: "
       f"(mean {rows[:, 6].mean():.2f} dB) -- insensitive to panel size")
 
 # ---- figure ---------------------------------------------------------------
-fig, ax = plt.subplots(figsize=(6.4, 4.4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(4.03, 3.0), constrained_layout=True)
 ax.plot(rows[:, 0], rows[:, 3], "-o", label="cosine model, max")
 ax.plot(rows[:, 0], rows[:, 5], "--s", label="specular model, max")
 ax.plot(rows[:, 0], rows[:, 2], ":^", color="C0", alpha=.6, label="cosine, min")

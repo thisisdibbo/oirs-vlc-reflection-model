@@ -137,7 +137,7 @@ print("  made under that model is therefore optimistic by a growing margin.")
 # ==========================================================================
 # figures
 # ==========================================================================
-fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.3), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.7), constrained_layout=True)
 
 styles = {"no IRS": ("-", "0.5"), "metaheuristic": ("--", "C3"),
           "reactive closed form": ("-", "C0"), "predictive": ("-.", "C1"),

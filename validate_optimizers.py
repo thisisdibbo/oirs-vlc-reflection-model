@@ -129,7 +129,7 @@ print(f"   analytic bisector reaches the SAME optimum in O(K) = {len(mpos)} "
 # ==========================================================================
 # C. Figure 3
 # ==========================================================================
-fig, axes = plt.subplots(1, 2, figsize=(11, 4.2), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.7), constrained_layout=True)
 for name, r in assign.items():
     ls, mk = STYLES[name]
     axes[0].plot(np.arange(1, len(r.history) + 1), r.history,

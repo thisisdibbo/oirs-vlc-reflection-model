@@ -27,23 +27,29 @@ def publication_style():
     Consistent typography across every figure in the paper.
 
     Called once at import by the day scripts that want it. Serif to match the
-    body text of an Elsevier article; sizes chosen so that a figure placed at
-    \\textwidth has labels close to the caption size rather than shouting.
+    body text of an Elsevier article.
+
+    The sizes below assume every figure is authored at its FINAL physical size
+    -- about 6.5 in wide, the text width of an elsarticle preprint on letter
+    paper -- so that \\includegraphics[width=\\textwidth] scales it by roughly
+    1.0 and these are the point sizes that actually reach the page. Authoring
+    wider and letting LaTeX shrink the figure is what put 3.5 pt tick labels in
+    an earlier draft. Do not raise any figsize without raising these to match.
     """
     import matplotlib
     matplotlib.rcParams.update({
         "font.family":       "serif",
-        "font.size":          9,
-        "axes.titlesize":     10,
-        "axes.labelsize":     9,
-        "xtick.labelsize":    8,
-        "ytick.labelsize":    8,
-        "legend.fontsize":    8,
-        "figure.titlesize":   11,
+        "font.size":          8,
+        "axes.titlesize":     8.5,
+        "axes.labelsize":     8,
+        "xtick.labelsize":    7,
+        "ytick.labelsize":    7,
+        "legend.fontsize":    6.5,
+        "figure.titlesize":   9,
         "axes.grid":          True,
         "grid.alpha":         0.30,
-        "grid.linewidth":     0.5,
-        "lines.linewidth":    1.5,
+        "grid.linewidth":     0.4,
+        "lines.linewidth":    1.1,
         "axes.linewidth":     0.7,
         "xtick.major.width":  0.7,
         "ytick.major.width":  0.7,

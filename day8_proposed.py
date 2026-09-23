@@ -186,7 +186,7 @@ print("  upgrade for systems that can localise to a few centimetres, not the")
 print("  headline contribution.")
 
 # ---- figure ---------------------------------------------------------------
-fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.3), constrained_layout=True)
+fig, axes = plt.subplots(1, 2, figsize=(6.5, 2.7), constrained_layout=True)
 
 x = np.arange(len(SLEWS_MS))
 w = 0.18
@@ -199,9 +199,9 @@ axes[0].set_xticklabels([f"{s} ms" for s in SLEWS_MS])
 axes[0].set_xlabel("actuator slew time (base paper, p.8)")
 axes[0].set_ylabel("mean SNR [dB]")
 axes[0].set_ylim(45, None)
-axes[0].set_title(r"$\sigma$ = 10 cm tracking error", fontsize=10)
+axes[0].set_title(r"Each scheme charged its own latency ($\sigma$ = 10 cm)")
 axes[0].grid(alpha=.3, axis="y")
-axes[0].legend(fontsize=7)
+axes[0].legend(handlelength=1.2, borderpad=0.3, labelspacing=0.25)
 
 for sl, mk in zip(SLEWS_MS, "os^"):
     axes[1].plot(SIGMAS, [res[(sl, sg)]["predictive"][0] for sg in SIGMAS],
@@ -213,10 +213,12 @@ axes[1].axhline(res[(10, 0.0)]["metaheuristic"][0], color="k", ls=":",
                 label="metaheuristic baseline")
 axes[1].set_xlabel("position / velocity estimation error $\\sigma$ [m]")
 axes[1].set_ylabel("mean SNR [dB]")
-axes[1].set_title("Sensitivity to tracking accuracy", fontsize=10)
+axes[1].set_title("Sensitivity to tracking accuracy")
 axes[1].grid(alpha=.3)
-axes[1].legend(fontsize=6.5, ncol=2)
+axes[1].legend(ncol=2, loc="center right", handlelength=1.4,
+               borderpad=0.3, labelspacing=0.2, columnspacing=0.8,
+               fontsize=5.5)
 
-fig.suptitle("Closed-form predictive steering vs population-based "
-             "optimisation, each charged its own latency", fontsize=11)
+# No suptitle: the caption carries the framing, and a long one forces the
+# figure wider than the text block, which LaTeX then shrinks.
 print("\nwrote:", ", ".join(save_fig(fig, "fig10_proposed")))
