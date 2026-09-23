@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------------------
+# LaTeX build products. The .tex sources are tracked; the build is not.
+# ---------------------------------------------------------------------------
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+
+# freeze_run.log IS tracked: it is the evidence for every number in the paper.
+# The *.log rule above would otherwise swallow it, so un-ignore it here.
+!freeze_run.log
+
+# ---------------------------------------------------------------------------
+# Scratch files from development
+# ---------------------------------------------------------------------------
+_*.tex
+_*.log
+_*.aux
+_*.pdf
+_*.png
+_*.txt
+
+# Timestamped figure copies written when a PDF viewer holds a file open
+fig*_[0-9][0-9][0-9][0-9][0-9][0-9].pdf
+fig*_[0-9][0-9][0-9][0-9][0-9][0-9].png
+
+# ---------------------------------------------------------------------------
+# Submission-private. Correspondence and internal planning, not research code.
+# NOTE: no inline comments below. Git treats "#" mid-line as part of the
+# pattern, not as a comment, so a trailing note silently breaks the rule.
+# ---------------------------------------------------------------------------
+cover_letter.md
+submission_checklist.md
+
+# ---------------------------------------------------------------------------
+# The manuscript. Excluded until the paper is accepted: posting a submitted
+# manuscript is a preprint decision, and Elsevier treats the submitted,
+# accepted and published versions differently. For a preprint use arXiv and
+# link it from the README rather than committing a PDF here.
+# ---------------------------------------------------------------------------
+main.tex
+refs.bib
+paper_preview.pdf
+main.pdf
+
+# Development render of Figure 1; fig1_geometry.tex is the source that ships
+fig1_geometry_preview.png
+
+# Cowork download folder, if it ever lands inside the project
+Claude outputs/
+
+# ---------------------------------------------------------------------------
+# OS
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini

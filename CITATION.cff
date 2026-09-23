@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper it accompanies."
+title: >-
+  Reflection models in mirror-array optical IRS for visible light
+  communication: simulation code
+authors:
+  - family-names: Rahman
+    given-names: Md. Mahin
+    email: mahinrahman22@iut-dhaka.edu
+    affiliation: >-
+      Department of Electrical and Electronic Engineering, Islamic University
+      of Technology, Gazipur, Bangladesh
+  - family-names: Tabassum
+    given-names: Sadia
+    affiliation: Islamic University of Technology
+  - family-names: Mubasshirah
+    given-names: Mumtazah
+    affiliation: Islamic University of Technology
+  - family-names: Hossain
+    given-names: Tahiya
+    affiliation: Islamic University of Technology
+  - family-names: Nujabah
+    given-names: Subaita
+    affiliation: Islamic University of Technology
+license: MIT
+repository-code: "TODO-github-url"
+preferred-citation:
+  type: article
+  title: >-
+    On the Reflection Model in Mirror-Array Intelligent Reflecting Surfaces for
+    Visible Light Communication: Overstated Gain, Analytic Optima, and the Cost
+    of Control Latency
+  authors:
+    - family-names: Rahman
+      given-names: Md. Mahin
+    - family-names: Tabassum
+      given-names: Sadia
+    - family-names: Mubasshirah
+      given-names: Mumtazah
+    - family-names: Hossain
+      given-names: Tahiya
+    - family-names: Nujabah
+      given-names: Subaita
+  journal: "Optics Communications"
+  year: 2026
+  status: submitted

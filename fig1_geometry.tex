@@ -1,0 +1,201 @@
+%=======================================================================
+%  Figure 1: system geometry and the two reflection models.
+%
+%  Pure TikZ -- no external tool, no image file, coordinates stay editable.
+%  Put this file beside main.tex and call it inside the figure environment
+%  that carries \label{fig:geometry}:
+%
+%      \begin{figure}[t]
+%        \centering
+%        \resizebox{\textwidth}{!}{\input{fig1_geometry}}
+%        \caption{...}
+%        \label{fig:geometry}
+%      \end{figure}
+%
+%  main.tex preamble must contain:
+%      \usepackage{tikz}
+%      \usepackage{siunitx}
+%      \usepackage{bm}
+%      \usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric}
+%
+%  Panel (a) is a PLAN view plus a height scale, not an isometric room.
+%  That is deliberate: the ceiling LED grid and the wall panels are offset
+%  by (1.25, 1.25, 1.5) m, which in any corner-on axonometric projects two
+%  of the four LEDs onto two of the four panels and a third onto the
+%  standing person.  The plan plus the height scale states every
+%  coordinate without ambiguity.
+%=======================================================================
+\begin{tikzpicture}[
+  >={Stealth[length=2mm]},
+  font=\footnotesize,
+  led/.style={fill=yellow!85!orange, draw=black!70, star, star points=5,
+              star point ratio=2.2, inner sep=1.0pt, line width=0.3pt},
+  obst/.style={fill=gray!25, draw=gray!60, line width=0.4pt},
+  ray/.style={->, line width=0.9pt, blue!65!black},
+  pbar/.style={draw=orange!80!red, line width=2.2pt, line cap=butt},
+]
+
+%================================================== (a-i) plan of the room
+\begin{scope}[x=0.90cm, y=0.90cm]
+
+% ---- room shell ----
+\fill[black!3] (0,0) rectangle (5,5);
+\draw[black!70, line width=1.0pt] (0,0) rectangle (5,5);
+
+% ---- obstacle footprints, base paper Table 3 ----
+\draw[obst] (2,2)     rectangle (3,3);
+\draw[obst] (0.5,0.5) rectangle (1.5,2);
+\draw[obst] (3,3)     rectangle (3.5,3.5);
+\node[font=\tiny, black!60] at (2.5,2.5) {table};
+\node[font=\tiny, black!60] at (1.0,0.78) {sofa};
+\node[font=\tiny, black!60, anchor=north west, inner sep=1.5pt]
+  at (3.05,2.93) {person};
+\draw[gray!65, line width=0.3pt] (3.18,2.94) -- (3.18,3.06);
+
+% ---- the four OIRS panels, 1 m wide, at the Table 3 wall centres ----
+\draw[pbar] (2,4.93)  -- (3,4.93);      % R1  (2.5, 5)
+\draw[pbar] (0.07,2)  -- (0.07,3);      % R2  (0,   2.5)
+\draw[pbar] (2,0.07)  -- (3,0.07);      % R3  (2.5, 0)
+\draw[pbar] (4.93,2)  -- (4.93,3);      % R4  (5,   2.5)
+\node[font=\tiny, orange!55!black, anchor=north] at (2.5,4.80) {$R_1$};
+\node[font=\tiny, orange!55!black, anchor=west]  at (0.20,2.5) {$R_2$};
+\node[font=\tiny, orange!55!black, anchor=south] at (2.5,0.20) {$R_3$};
+\node[font=\tiny, orange!55!black, anchor=east]  at (4.80,2.5) {$R_4$};
+
+% ---- the four ceiling LEDs ----
+\foreach \x/\y in {1.25/1.25, 1.25/3.75, 3.75/1.25, 3.75/3.75}
+  \node[led] at (\x,\y) {};
+
+% ---- example path: LED -> mirror on R4 -> UE ----
+\coordinate (L)  at (3.75,3.75);
+\coordinate (M)  at (4.93,2.5);
+\coordinate (RX) at (3.8,0.9);
+\draw[ray] (L) -- (M)
+  node[pos=0.55, above right, font=\tiny, blue!55!black, inner sep=1pt]
+  {$d_1$};
+\draw[ray] (M) -- (RX)
+  node[pos=0.55, below right, font=\tiny, blue!55!black, inner sep=1pt]
+  {$d_2$};
+\fill[blue!70!black] (RX) circle (1.8pt);
+\node[anchor=north, font=\tiny, blue!55!black, inner sep=2pt] at (RX) {UE};
+
+% ---- local axes and the room dimension ----
+\draw[->, black!55, line width=0.35pt] (0.20,0.30) -- (0.88,0.30)
+  node[anchor=north, font=\tiny, inner sep=1.5pt] {$x$};
+\draw[->, black!55, line width=0.35pt] (0.20,0.30) -- (0.20,0.98)
+  node[anchor=east, font=\tiny, inner sep=1.5pt] {$y$};
+\draw[<->, black!55, line width=0.3pt] (0,-0.45) -- (5,-0.45)
+  node[midway, fill=white, inner sep=1pt, font=\tiny, text=black!60]
+  {\SI{5}{\metre}};
+\draw[<->, black!55, line width=0.3pt] (-0.45,0) -- (-0.45,5)
+  node[midway, fill=white, inner sep=1pt, font=\tiny, text=black!60,
+       rotate=90] {\SI{5}{\metre}};
+
+\node[anchor=north, font=\scriptsize] at (2.5,-1.05) {(a-i) plan};
+\end{scope}
+
+%============================================== (a-ii) the height scale
+\begin{scope}[xshift=5.30cm, yshift=0.45cm, y=1.10cm, x=1cm]
+
+\draw[black!60, line width=0.6pt] (0,0) -- (0,3.3);
+\foreach \z in {0,0.8,1.5,3}
+  \draw[black!60, line width=0.4pt] (-0.07,\z) -- (0.07,\z);
+\foreach \z/\lb in {0/{0}, 0.8/{0.8}, 1.5/{1.5}, 3/{3.0}}
+  \node[anchor=east, font=\tiny, black!55, inner sep=2pt] at (-0.08,\z) {\lb};
+\node[anchor=south, font=\tiny, black!55, inner sep=1.5pt]
+  at (0,3.34) {$z$\,[m]};
+
+% ceiling: LEDs
+\node[led] at (0.40,3) {};
+\node[anchor=west, font=\tiny, black!65, inner sep=2.5pt]
+  at (0.54,3) {4 LEDs};
+
+% panel band: 1 m tall about z = 1.5 m
+\draw[orange!80!red, line width=2.2pt, line cap=butt] (0.40,1.0) -- (0.40,2.0);
+\node[anchor=west, font=\tiny, black!65, align=left, inner sep=2.5pt]
+  at (0.54,1.5) {OIRS panels\\$10\times10$ mirrors\\centre $z=\SI{1.5}{\metre}$};
+
+% receiver plane
+\draw[blue!55!black, dashed, line width=0.5pt] (0.14,0.8) -- (2.15,0.8);
+\node[anchor=south west, font=\tiny, blue!55!black, inner sep=1.5pt]
+  at (0.54,0.83) {receiver plane};
+
+% floor
+\draw[black!55, line width=0.7pt] (0.14,0) -- (2.15,0);
+\node[anchor=north west, font=\tiny, black!60, inner sep=1.5pt]
+  at (0.54,-0.02) {floor};
+
+\node[anchor=north, font=\scriptsize] at (1.05,-1.32) {(a-ii) heights};
+\end{scope}
+
+\node[anchor=north, font=\small\bfseries] at (3.8,-1.55) {(a)};
+
+%=================================================== (b) the two models
+\begin{scope}[xshift=8.15cm, yshift=1.60cm]
+
+\foreach \dx/\ttl in {0/{cosine model, Eq.~\eqref{eq:cosmodel}},
+                      4.2/{specular model, Eq.~\eqref{eq:specmodel}}}{
+  \begin{scope}[xshift=\dx cm]
+    % wall + one mirror element
+    \draw[black!45, line width=0.6pt] (0,-1.85) -- (0,1.75);
+    \fill[black!10] (-0.16,-1.85) rectangle (0,1.75);
+    \draw[fill=orange!80!red, draw=black!70, line width=0.4pt]
+      (-0.07,-0.28) rectangle (0.07,0.28);
+    % LED and UE
+    \coordinate (Ld) at (2.30,1.35);
+    \coordinate (Rd) at (2.65,-1.05);
+    \node[led] at (Ld) {};
+    \fill[blue!65!black] (Rd) circle (1.7pt);
+    \node[anchor=west, font=\scriptsize] at (Ld) {\;LED};
+    \node[anchor=west, font=\scriptsize, blue!55!black] at (Rd) {\;UE};
+    % unit directions defined at the mirror
+    \draw[->, black!50, line width=0.5pt, dashed] (0,0) -- (Ld)
+      node[pos=0.58, above, font=\scriptsize, black!55, inner sep=1.5pt]
+      {$\bm{u}_{\mathrm{in}}$};
+    \draw[->, black!50, line width=0.5pt, dashed] (0,0) -- (Rd)
+      node[pos=0.58, below left, font=\scriptsize, black!55, inner sep=1.5pt]
+      {$\bm{u}_{\mathrm{out}}$};
+    \node[anchor=south, font=\scriptsize\bfseries] at (1.40,2.00) {\ttl};
+  \end{scope}
+}
+
+% --- left: the normal is aimed at the UE; the incident ray is ignored ---
+\begin{scope}
+  \draw[->, red!75!black, line width=1.1pt] (0,0) -- (2.09,-0.83);
+  \node[red!70!black, font=\scriptsize, anchor=south west, inner sep=1pt]
+    at (1.00,-0.40) {$\hat{\bm{n}}=\bm{u}_{\mathrm{out}}$};
+  \draw[->, blue!60!black, line width=0.9pt] (2.30,1.35) -- (0.11,0);
+  % where the light would actually go under the law of reflection
+  \draw[->, black!45, line width=0.8pt, dash pattern=on 2pt off 1.4pt]
+    (0.11,0) -- (0.52,-1.39);
+  \node[black!50, font=\tiny, anchor=north west, align=left, inner sep=1.5pt]
+    at (0.40,-1.10) {where the light\\actually goes};
+  \node[align=center, font=\scriptsize, text=red!65!black]
+    at (1.60,-2.05) {gain depends on\\%
+                     $\hat{\bm{n}}\cdot\bm{u}_{\mathrm{out}}$ alone:\\%
+                     incident direction absent};
+\end{scope}
+
+% --- right: the normal bisects; the reflected ray reaches the UE --------
+\begin{scope}[xshift=4.2cm]
+  \draw[->, red!75!black, line width=1.1pt] (0,0) -- (2.09,0.161);
+  \node[red!70!black, font=\scriptsize, anchor=south west, inner sep=1pt]
+    at (1.13,0.20)
+    {$\hat{\bm{n}}\propto\bm{u}_{\mathrm{in}}+\bm{u}_{\mathrm{out}}$};
+  \draw[->, blue!60!black, line width=0.9pt] (2.30,1.35) -- (0.11,0);
+  \draw[->, blue!60!black, line width=0.9pt] (0.11,0) -- (2.65,-1.05);
+  % equal-angle marks about the normal
+  \draw[black!55, line width=0.4pt] (0.535,0.314) arc (30.4:4.4:0.62);
+  \draw[black!55, line width=0.4pt] (0.618,0.048) arc (4.4:-21.6:0.62);
+  \node[black!60, font=\tiny] at (0.80,0.45) {$\theta_i$};
+  \node[black!60, font=\tiny] at (0.92,-0.25) {$\theta_r$};
+  \node[align=center, font=\scriptsize, text=black!70]
+    at (1.75,-2.05) {law of reflection\\%
+                     enforced, $\theta_i=\theta_r$:\\%
+                     the ray reaches the UE};
+\end{scope}
+
+\node[anchor=north, font=\small\bfseries] at (3.15,-3.15) {(b)};
+\end{scope}
+
+\end{tikzpicture}

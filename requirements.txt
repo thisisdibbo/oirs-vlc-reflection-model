@@ -1,0 +1,5 @@
+# Pinned to the versions the frozen run used. Looser bounds will very probably
+# work; these are recorded so that "it reproduces" is a checkable statement.
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
