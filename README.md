@@ -5,7 +5,13 @@ Simulation code for the paper:
 > **On the Reflection Model in Mirror-Array Intelligent Reflecting Surfaces for
 > Visible Light Communication: Overstated Gain, Analytic Optima, and the Cost of
 > Control Latency**
-> Md. Mahin Rahman. Submitted to *Optics Communications*, 2026.
+> Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
+> Subaita Nujabah. Department of Electrical and Electronic Engineering,
+> Islamic University of Technology, Gazipur, Bangladesh.
+>
+> *Manuscript in preparation, intended for Optics Communications.* This
+> repository is the code and the frozen run behind it; the manuscript itself is
+> not published here.
 
 Every figure and every number in the paper is produced by the code here, in one
 frozen run. `freeze_run.log` is that run's complete output: each figure's
@@ -172,8 +178,11 @@ measured on an Intel Core i9-14900HX.
 
 ## Citing
 
-If you use this code, please cite the paper. `CITATION.cff` carries the
-metadata; GitHub renders a "Cite this repository" button from it.
+The manuscript is not yet submitted, so there is no volume, pages or DOI to
+cite. Until there is, cite this repository, or the paper as work in
+preparation. `CITATION.cff` carries the metadata and GitHub renders a "Cite
+this repository" button from it; its `status:` field is updated as the paper
+moves from preparation to submission to publication.
 
 ## Licence
 

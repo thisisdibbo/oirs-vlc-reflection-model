@@ -41,6 +41,8 @@ preferred-citation:
       given-names: Tahiya
     - family-names: Nujabah
       given-names: Subaita
-  journal: "Optics Communications"
+  journal: "Optics Communications"   # intended venue
   year: 2026
-  status: submitted
+  # CFF status values: in-preparation, abstract, submitted,
+  # in-press, advance-online, preprint. Update as the paper moves.
+  status: in-preparation
