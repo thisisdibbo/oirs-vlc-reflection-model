@@ -68,6 +68,11 @@ fig1_geometry_preview.png
 # Cowork download folder, if it ever lands inside the project
 Claude outputs/
 
+# The assembled upload package: copies of manuscript files that are already
+# excluded above, plus the cover letter. Kept on disk for convenience at
+# submission time, never committed.
+submission/
+
 # ---------------------------------------------------------------------------
 # OS
 # ---------------------------------------------------------------------------
