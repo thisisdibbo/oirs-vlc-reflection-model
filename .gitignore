@@ -57,6 +57,11 @@ refs.bib
 paper_preview.pdf
 main.pdf
 
+# The Highlights are manuscript text, carried in main.tex beside the abstract.
+# These two are the separate-file copies Editorial Manager asks for at upload.
+highlights.docx
+highlights.txt
+
 # Development render of Figure 1; fig1_geometry.tex is the source that ships
 fig1_geometry_preview.png
 
