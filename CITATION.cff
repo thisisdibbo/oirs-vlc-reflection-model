@@ -23,7 +23,8 @@ authors:
     given-names: Subaita
     affiliation: Islamic University of Technology
 license: MIT
-repository-code: "TODO-github-url"
+repository-code: "https://github.com/thisisdibbo/oirs-vlc-reflection-model"
+doi: "10.5281/zenodo.22917919"
 preferred-citation:
   type: article
   title: >-

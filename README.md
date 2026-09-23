@@ -1,5 +1,7 @@
 # Reflection models in mirror-array optical IRS for visible light communication
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22917919.svg)](https://doi.org/10.5281/zenodo.22917919)
+
 Simulation code for the paper:
 
 > **On the Reflection Model in Mirror-Array Intelligent Reflecting Surfaces for
@@ -178,9 +180,15 @@ measured on an Intel Core i9-14900HX.
 
 ## Citing
 
-The manuscript is not yet submitted, so there is no volume, pages or DOI to
-cite. Until there is, cite this repository, or the paper as work in
-preparation. `CITATION.cff` carries the metadata and GitHub renders a "Cite
+The manuscript is not yet submitted, so there is no journal volume, pages or
+article DOI to cite. Until there is, cite this repository by its archive DOI:
+
+> Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
+> Subaita Nujabah. *Reflection models in mirror-array optical IRS for visible
+> light communication: simulation code*, v1.0.0, Zenodo, 2026.
+> [doi:10.5281/zenodo.22917919](https://doi.org/10.5281/zenodo.22917919)
+
+ `CITATION.cff` carries the metadata and GitHub renders a "Cite
 this repository" button from it; its `status:` field is updated as the paper
 moves from preparation to submission to publication.
 
