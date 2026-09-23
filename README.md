@@ -163,7 +163,7 @@ Under the cosine model the optimal normal depends only on mirror and receiver
 and a configuration computed a second ago is as good as one computed now. Those
 two zeros are structural, not rounding: they are what the model permits.
 
-A closed-form bisector update costs 50.7 µs against 7.69 s for a converged GA
+A closed-form bisector update costs 64.9 µs against 7.69 s for a converged GA
 and recovers 73 % of the zero-latency bound with no pose estimate at all. Both
 timings are machine-dependent; the machine-independent statement is that the
 update is *O(K)* and requires no search.
