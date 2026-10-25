@@ -20,6 +20,7 @@ LOG = HERE / "freeze_run.log"
 REPORT = HERE / "verification_report.txt"
 TEX = HERE / "submission_oqe" / "main.tex"
 FREEZE = HERE / "freeze.py"
+ARCHIVE = HERE / "archive"
 DONE = "ALL_FREEZE_RUNS_COMPLETE"
 BAR = "#" * 64
 PM = r"\s*(?:±|\ufffd|\?|\+/-)\s*"
@@ -87,10 +88,15 @@ claim("5.6", "cosine blockage", "1.22 dB",
       "day6_blockage.py", r"cosine\s+blockage\s+1\.22 dB \+ latency\s+0\.00 dB =\s+1\.23")
 claim("5.6", "blockage, static furniture only", "0.65 dB",
       "day6_blockage.py", r"specular\s+static\s+0\.65")
-claim("5.6", "outage, latency alone (0 -> 50 ms)", "0.5 % -> 53.3 %",
-      "day6_blockage.py", r"specular\s+none\s+0\.5%.*?53\.3%")
-claim("5.6", "outage at 50 ms, with occupant", "58.9 %",
-      "day6_blockage.py", r"specular\s+mobile\s+.*?58\.9%")
+OUTAGE = (r"Outage P\[SNR < 50 dB\][^\n]*\n[^\n]*\s0\s+20\s+50\s+100\s+500\s*\n"
+          r"(?:[^\n]*\n)*?")
+CELL = r"[\d.]+%\s*/\s*[\d.]+%\s+"
+claim("5.6", "outage, latency alone (tau 0 -> 100 ms)", "0.5 % -> 53.3 %",
+      "day6_blockage.py",
+      OUTAGE + r"(?P<v>specular\s+none\s+0\.5%\s*/\s*[\d.]+%\s+(?:" + CELL + r"){2}53\.3%)")
+claim("5.6", "outage at tau = 100 ms, with occupant", "58.9 %",
+      "day6_blockage.py",
+      OUTAGE + r"(?P<v>specular\s+mobile\s+(?:" + CELL + r"){3}58\.9%)")
 
 claim("5.7", "ambient, moderate indoor", "3.12 dB",
       "day7_noise.py", r"moderate indoor.*?\s3\.12\b")
@@ -107,19 +113,17 @@ claim("5.7", "saturation with diffuse", "15.67 dB (15.7)",
 
 claim("5.9", "reactive closed form at 10 ms", "11.22 dB",
       "day8_proposed.py", r"10ms\s+0\.00m\s+11\.22")
-claim("5.9", "zero-latency bound at 10 ms", "15.46 dB",
-      "day8_proposed.py", r"10ms\s+0\.00m\s+11\.22\s+[\d.]+\s+15\.46")
 claim("Abstract, 5.9", "recovered fraction, reactive", "73 %",
       "day8_proposed.py", r"10ms\s+0\.00m\s+73%\s+100%")
 claim("5.9", "predictive recovered at 1 cm", "66 %",
       "day8_proposed.py", r"10ms\s+0\.01m\s+73%\s+66%")
-claim("5.9", "predictive recovered at 2 cm", "37 %",
-      "day8_proposed.py", r"10ms\s+0\.02m\s+73%\s+37%")
-claim("5.9, Contrib. 3", "predictive recovered at 5 cm", "12 %",
-      "day8_proposed.py", r"10ms\s+0\.05m\s+73%\s+12%")
+claim("5.9", "predictive recovered at 2 cm", "38 %",
+      "day8_proposed.py", r"10ms\s+0\.02m\s+73%\s+38%")
+claim("5.9, Contrib. 3", "predictive recovered at 5 cm", "13 %",
+      "day8_proposed.py", r"10ms\s+0\.05m\s+73%\s+13%")
 claim("5.9", "predictive recovered at 10 cm", "4 %",
       "day8_proposed.py", r"10ms\s+0\.10m\s+73%\s+4%")
-claim("5.9", "crossover at 20 ms, sigma = 2 cm", "55.37 vs 55.36 dB",
+claim("5.9", "crossover at 20 ms, sigma = 2 cm", "level to 0.01 dB (55.37 vs 55.36)",
       "day8_proposed.py", r"20ms\s+0\.02m.*?55\.37.*?55\.36")
 
 claim("5.8", "divergence at K = 36", "4.04 dB",
@@ -161,7 +165,7 @@ for c, g, b in (("0.0200", "0.55", "25.80"), ("0.1021", "2.35", "13.58"),
                 ("0.5213", "7.50", "4.93"), ("1.5454", "13.05", "1.76")):
     claim("5.11, Table 3", f"row c = {c}", f"{g} / {b} dB",
           "crossover.py", rf"{re.escape(c)}\s+{re.escape(g)} dB\s+{re.escape(g)} dB\s+{re.escape(b)} dB")
-claim("5.11, Eq. 20", "latency/blockage crossover", "6.3 dB surface gain",
+claim("5.11, Eq. 21", "latency/blockage crossover", "6.3 dB surface gain",
       "crossover.py", r"IRS gain over the unaided link is 6\.3 dB")
 claim("5.11, Table 3", "row c = 1", "10.67 / 2.80 dB (10.7 / 2.80)",
       "crossover.py", r"IRS gain 10\.67 dB, latency 10\.67 dB, blockage 2\.80 dB")
@@ -235,9 +239,57 @@ def body(text, script):
 
 
 def line_of(sec, m):
-    a = sec.rfind("\n", 0, m.start()) + 1
-    b = sec.find("\n", m.end())
+    g = "v" if "v" in m.re.groupindex else 0
+    a = sec.rfind("\n", 0, m.start(g)) + 1
+    b = sec.find("\n", m.end(g))
     return sec[a:b if b != -1 else len(sec)].strip()
+
+
+def timings(text):
+    vo, d8 = body(text, "validate_optimizers.py"), body(text, "day8_proposed.py")
+    mb = re.search(r"closed-form bisector\s+([\d.]+) us", d8)
+    mg = re.search(r"GA\s+[\d.]+\s+[\d.]+\s+45,030\s+([\d.]+)\s+([\d.]+)s", vo)
+    return (mb.group(1) if mb else None,
+            mg.group(1) if mg else None,
+            mg.group(2) if mg else None)
+
+
+ARCHIVED = [
+    ("freeze_run_linux_2.log", "original frozen run, Linux - Sections 5.3, 5.9, Table 2",
+     (("closed-form update, K = 400", 0, "64.9", "us"),
+      ("GA per evaluation", 1, "0.263", "ms"),
+      ("converged GA run", 2, "11.84", "s"))),
+    ("freeze_run_i9.log", "Intel Core i9-14900HX, Windows 11 - Sections 5.3, 5.9",
+     (("closed-form update, K = 400", 0, "39.8", "us"),
+      ("GA per evaluation", 1, "0.113", "ms"),
+      ("converged GA run", 2, "5.08", "s"))),
+    ("freeze_run_linux_1.log", "earlier Linux run - the pinned TAU_META_S, Section 5.9",
+     (("GA per evaluation", 1, "0.171", "ms"),
+      ("converged GA run", 2, "7.69", "s"))),
+]
+
+
+def archived(out):
+    ok = n = 0
+    for name, role, rows in ARCHIVED:
+        f = ARCHIVE / name
+        out.append(f"  {name}  ({role})")
+        if not f.exists():
+            out.append("    not found")
+            n += len(rows)
+            continue
+        text = f.read_bytes().decode("utf-8", errors="replace")
+        host = re.search(r"host\s*:\s*([^\r\n]+)", text)
+        out.append(f"    host as logged: {host.group(1).strip() if host else 'not logged'}")
+        got = timings(text)
+        for what, i, paper, unit in rows:
+            hit = got[i] == paper
+            ok += hit
+            n += 1
+            out.append(f"    [{'MATCH' if hit else 'DIFFERS':7}] {what:<28} "
+                       f"paper {paper + ' ' + unit:<9} log {got[i]} {unit}")
+    out.append(f"  {ok} of {n} quoted timings found in the archived logs.")
+    return ok, n
 
 
 def pinned():
@@ -245,8 +297,8 @@ def pinned():
         return []
     f = FREEZE.read_text(encoding="utf-8", errors="replace")
     out = []
-    for name, paper, where in (("T_EVAL_MS", "0.169", "5.9, ms per evaluation"),
-                               ("TAU_META_S", "7.69", "5.9, Fig. 11, s")):
+    for name, paper, where in (("T_EVAL_MS", "0.171", "5.9, GA ms per evaluation"),
+                               ("TAU_META_S", "7.69", "5.9, Figs. 10-11, s")):
         m = re.search(rf"^{name}\s*=\s*([\d.]+)", f, re.M)
         got = m.group(1) if m else "not found"
         out.append((name, paper, got, where))
@@ -275,16 +327,14 @@ def check():
             rows.append(("DIFFERS", where, what, value, script,
                          "expected value not found; inspect this script's output"))
 
-    vo, d8 = body(text, "validate_optimizers.py"), body(text, "day8_proposed.py")
-    mb = re.search(r"closed-form bisector\s+([\d.]+) us", d8)
-    mg = re.search(r"GA\s+[\d.]+\s+[\d.]+\s+45,030\s+([\d.]+)\s+([\d.]+)s", vo)
+    us, tev, ga = timings(text)
     timing = []
-    if mb and mg:
-        us, tev, ga = float(mb.group(1)), float(mg.group(1)), float(mg.group(2))
-        timing = [("closed-form update, K = 400", "64.9 us", f"{us} us"),
-                  ("GA per evaluation", "0.263 ms", f"{tev} ms"),
-                  ("converged GA run", "11.84 s", f"{ga} s"),
-                  ("ratio GA / closed form", "1.8e+05", f"{ga / (us * 1e-6):.1e}")]
+    if None not in (us, tev, ga):
+        timing = [("closed-form update, K = 400", "64.9 / 39.8 us", f"{us} us"),
+                  ("GA per evaluation", "0.263 / 0.113 ms", f"{tev} ms"),
+                  ("converged GA run", "11.84 / 5.08 s", f"{ga} s"),
+                  ("ratio GA / closed form", "1.8e+05 / 1.3e+05",
+                   f"{float(ga) / (float(us) * 1e-6):.1e}")]
 
     w = max(len(r[2]) for r in rows)
     out = ["VERIFICATION REPORT",
@@ -304,17 +354,22 @@ def check():
                 f"           log: {line}", ""]
 
     out += ["=" * 78, "PINNED CONSTANTS (freeze.py)",
-            "Used by the experiments in place of a fresh timing measurement."]
+            "TAU_META_S is charged by Days 8 and 9 in place of a fresh timing",
+            "measurement; T_EVAL_MS records the GA cost per evaluation behind it."]
     for name, paper, got, where in pinned():
         flag = "MATCH" if got == paper else "DIFFERS"
         out.append(f"  [{flag:7}] {name:<11} paper {paper:<7} freeze.py {got:<10} ({where})")
 
-    out += ["", "=" * 78, "MACHINE-DEPENDENT TIMINGS",
-            "Measured on whichever computer ran this, so not expected to match.",
+    out += ["", "=" * 78, "ARCHIVED RUNS (archive/) - where the quoted timings come from"]
+    arch_ok, arch_n = archived(out)
+
+    out += ["", "=" * 78, "MACHINE-DEPENDENT TIMINGS, THIS RUN",
+            "Measured on whichever computer ran this, so not expected to match",
+            "either machine in the paper (Linux x86-64 / i9-14900HX, Windows 11).",
             "The paper's claim is only that the ratio is about five orders of",
             "magnitude (1e5). Check the last line, not the seconds.", ""]
     for what, paper, here in timing:
-        out.append(f"  {what:<28} paper {paper:<10} this run {here}")
+        out.append(f"  {what:<28} paper {paper:<18} this run {here}")
     if not timing:
         out.append("  timing lines not found in the log")
 
@@ -332,7 +387,7 @@ def check():
     REPORT.write_text(report, encoding="utf-8")
     print(report)
     print(f"\nSaved to {REPORT.name}.")
-    return ok == len(rows) and not absent
+    return ok == len(rows) and not absent and arch_ok == arch_n
 
 
 if __name__ == "__main__":

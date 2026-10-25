@@ -5,7 +5,7 @@ Every scheme is charged its own real control latency:
 
     tau = tau_compute + tau_slew
 
-  metaheuristics  tau_compute ~ 5 s measured on this machine (Day 3)
+  metaheuristics  tau_compute = TAU_META_S, pinned in freeze.py (7.69 s)
                   + tau_slew 10-50 ms (base paper, p.8)
   closed form     tau_compute = one O(K) update, measured below
                   + the same tau_slew
@@ -139,12 +139,12 @@ for slew_ms in SLEWS_MS:
               + f"{r['predictive'][0]-b:13.2f}"
               + f"{r['genie (tau = 0)'][0]-b:9.2f}")
 
-print("\nFraction of the genie bound recovered")
+print("\nFraction of the genie bound recovered, in dB over the no-IRS link")
 print(f"{'slew':>5}{'sigma':>7}{'closed form':>14}{'predictive':>13}")
 for slew_ms in SLEWS_MS:
     for sigma in SIGMAS:
         r = res[(slew_ms, sigma)]
-        lo, hi = r["metaheuristic"][0], r["genie (tau = 0)"][0]
+        lo, hi = r["no IRS"][0], r["genie (tau = 0)"][0]
         f = lambda s: 100 * (r[s][0] - lo) / (hi - lo)
         print(f"{slew_ms:4d}ms{sigma:6.2f}m{f('closed form'):13.0f}%"
               f"{f('predictive'):12.0f}%")
@@ -179,7 +179,7 @@ for sl in SLEWS_MS:
     print(f"  slew {sl:3d} ms" + "".join(f"{v:>14}" for v in row))
 print("\n  Sub-centimetre tracking is not available from VLC positioning, so")
 print("  the ROBUST recommendation is the reactive closed form: it recovers")
-print(f"  {100*(res[(10,0.0)]['closed form'][0]-res[(10,0.0)]['metaheuristic'][0])/(res[(10,0.0)]['genie (tau = 0)'][0]-res[(10,0.0)]['metaheuristic'][0]):.0f}% "
+print(f"  {100*(res[(10,0.0)]['closed form'][0]-res[(10,0.0)]['no IRS'][0])/(res[(10,0.0)]['genie (tau = 0)'][0]-res[(10,0.0)]['no IRS'][0]):.0f}% "
       f"of the bound at 10 ms slew with no pose estimate at all, and its")
 print("  performance is measured against an exact-position benchmark. Prediction is an")
 print("  upgrade for systems that can localise to a few centimetres, not the")

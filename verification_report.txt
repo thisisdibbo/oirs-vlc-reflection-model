@@ -1,9 +1,9 @@
 VERIFICATION REPORT
 Closed-Form Mirror Steering and the Cost of Control Latency
 in Optical IRS-Assisted Visible Light Communication
-generated 2026-10-25 22:31
+generated 2026-10-25 23:46
 ==============================================================================
-61 of 61 cited numbers reproduced.
+60 of 60 cited numbers reproduced.
   MATCH    = the exact value the paper states
   IN RANGE = one of the two platform values the paper states (Section 5.3)
 
@@ -33,15 +33,15 @@ generated 2026-10-25 22:31
 
 [IN RANGE] TLBO gap, assignment space               paper: 2.62 / 2.58 dB (two platforms)
            Section 5.3  <-  validate_optimizers.py
-           log: TLBO      56.49    2.58   45,030      0.113     5.10s  stalls (premature convergence)
+           log: TLBO      56.49    2.58   45,030      0.115     5.16s  stalls (premature convergence)
 
 [IN RANGE] GA gap, assignment space                 paper: 0.14 / 0.00 dB (two platforms)
            Section 5.3  <-  validate_optimizers.py
-           log: GA        59.06    0.00   45,030      0.113     5.08s  converges
+           log: GA        59.06    0.00   45,030      0.117     5.26s  converges
 
 [MATCH   ] PSO gap, assignment space                paper: 1.65 dB
            Section 5.3  <-  validate_optimizers.py
-           log: PSO       57.41    1.65   45,030      0.111     5.00s  partial
+           log: PSO       57.41    1.65   45,030      0.118     5.29s  partial
 
 [MATCH   ] orientation knowledge, specular sitting  paper: 0.00 dB
            Section 5.4  <-  day4_orientation.py
@@ -91,11 +91,11 @@ generated 2026-10-25 22:31
            Section 5.6  <-  day6_blockage.py
            log: specular static    0.65
 
-[MATCH   ] outage, latency alone (0 -> 50 ms)       paper: 0.5 % -> 53.3 %
+[MATCH   ] outage, latency alone (tau 0 -> 100 ms)  paper: 0.5 % -> 53.3 %
            Section 5.6  <-  day6_blockage.py
            log: specular  none         0.5% /  0.0%   20.7% /  0.0%   40.4% /  0.0%   53.3% /  0.0%   58.2% /  0.0%
 
-[MATCH   ] outage at 50 ms, with occupant           paper: 58.9 %
+[MATCH   ] outage at tau = 100 ms, with occupant    paper: 58.9 %
            Section 5.6  <-  day6_blockage.py
            log: specular  mobile       2.9% /  0.0%   24.1% /  0.0%   45.0% /  0.0%   58.9% /  0.0%   63.7% /  0.0%
 
@@ -127,10 +127,6 @@ generated 2026-10-25 22:31
            Section 5.9  <-  day8_proposed.py
            log: 10ms  0.00m         11.22        15.44    15.46
 
-[MATCH   ] zero-latency bound at 10 ms              paper: 15.46 dB
-           Section 5.9  <-  day8_proposed.py
-           log: 10ms  0.00m         11.22        15.44    15.46
-
 [MATCH   ] recovered fraction, reactive             paper: 73 %
            Section Abstract, 5.9  <-  day8_proposed.py
            log: 10ms  0.00m           73%         100%
@@ -139,19 +135,19 @@ generated 2026-10-25 22:31
            Section 5.9  <-  day8_proposed.py
            log: 10ms  0.01m           73%          66%
 
-[MATCH   ] predictive recovered at 2 cm             paper: 37 %
+[MATCH   ] predictive recovered at 2 cm             paper: 38 %
            Section 5.9  <-  day8_proposed.py
-           log: 10ms  0.02m           73%          37%
+           log: 10ms  0.02m           73%          38%
 
-[MATCH   ] predictive recovered at 5 cm             paper: 12 %
+[MATCH   ] predictive recovered at 5 cm             paper: 13 %
            Section 5.9, Contrib. 3  <-  day8_proposed.py
-           log: 10ms  0.05m           73%          12%
+           log: 10ms  0.05m           73%          13%
 
 [MATCH   ] predictive recovered at 10 cm            paper: 4 %
            Section 5.9  <-  day8_proposed.py
            log: 10ms  0.10m           73%           4%
 
-[MATCH   ] crossover at 20 ms, sigma = 2 cm         paper: 55.37 vs 55.36 dB
+[MATCH   ] crossover at 20 ms, sigma = 2 cm         paper: level to 0.01 dB (55.37 vs 55.36)
            Section 5.9  <-  day8_proposed.py
            log: 20ms  0.02m      49.48±0.62       49.59±0.66       55.37±2.36       55.36±1.73       65.05±1.00
 
@@ -244,7 +240,7 @@ generated 2026-10-25 22:31
            log: 1.5454   13.05 dB  13.05 dB    1.76 dB  11.28 dB
 
 [MATCH   ] latency/blockage crossover               paper: 6.3 dB surface gain
-           Section 5.11, Eq. 20  <-  crossover.py
+           Section 5.11, Eq. 21  <-  crossover.py
            log: crossover (latency = blockage) at c = 0.397, where the IRS gain over the unaided link is 6.3 dB
 
 [MATCH   ] row c = 1                                paper: 10.67 / 2.80 dB (10.7 / 2.80)
@@ -253,20 +249,40 @@ generated 2026-10-25 22:31
 
 ==============================================================================
 PINNED CONSTANTS (freeze.py)
-Used by the experiments in place of a fresh timing measurement.
-  [MATCH  ] T_EVAL_MS   paper 0.169   freeze.py 0.169      (5.9, ms per evaluation)
-  [MATCH  ] TAU_META_S  paper 7.69    freeze.py 7.69       (5.9, Fig. 11, s)
+TAU_META_S is charged by Days 8 and 9 in place of a fresh timing
+measurement; T_EVAL_MS records the GA cost per evaluation behind it.
+  [MATCH  ] T_EVAL_MS   paper 0.171   freeze.py 0.171      (5.9, GA ms per evaluation)
+  [MATCH  ] TAU_META_S  paper 7.69    freeze.py 7.69       (5.9, Figs. 10-11, s)
 
 ==============================================================================
-MACHINE-DEPENDENT TIMINGS
-Measured on whichever computer ran this, so not expected to match.
+ARCHIVED RUNS (archive/) - where the quoted timings come from
+  freeze_run_linux_2.log  (original frozen run, Linux - Sections 5.3, 5.9, Table 2)
+    host as logged: x86_64, numpy 2.4.4
+    [MATCH  ] closed-form update, K = 400  paper 64.9 us   log 64.9 us
+    [MATCH  ] GA per evaluation            paper 0.263 ms  log 0.263 ms
+    [MATCH  ] converged GA run             paper 11.84 s   log 11.84 s
+  freeze_run_i9.log  (Intel Core i9-14900HX, Windows 11 - Sections 5.3, 5.9)
+    host as logged: AMD64, numpy 2.5.3
+    [MATCH  ] closed-form update, K = 400  paper 39.8 us   log 39.8 us
+    [MATCH  ] GA per evaluation            paper 0.113 ms  log 0.113 ms
+    [MATCH  ] converged GA run             paper 5.08 s    log 5.08 s
+  freeze_run_linux_1.log  (earlier Linux run - the pinned TAU_META_S, Section 5.9)
+    host as logged: x86_64, numpy 2.4.4
+    [MATCH  ] GA per evaluation            paper 0.171 ms  log 0.171 ms
+    [MATCH  ] converged GA run             paper 7.69 s    log 7.69 s
+  8 of 8 quoted timings found in the archived logs.
+
+==============================================================================
+MACHINE-DEPENDENT TIMINGS, THIS RUN
+Measured on whichever computer ran this, so not expected to match
+either machine in the paper (Linux x86-64 / i9-14900HX, Windows 11).
 The paper's claim is only that the ratio is about five orders of
 magnitude (1e5). Check the last line, not the seconds.
 
-  closed-form update, K = 400  paper 64.9 us    this run 39.8 us
-  GA per evaluation            paper 0.263 ms   this run 0.113 ms
-  converged GA run             paper 11.84 s    this run 5.08 s
-  ratio GA / closed form       paper 1.8e+05    this run 1.3e+05
+  closed-form update, K = 400  paper 64.9 / 39.8 us     this run 34.3 us
+  GA per evaluation            paper 0.263 / 0.113 ms   this run 0.117 ms
+  converged GA run             paper 11.84 / 5.08 s     this run 5.26 s
+  ratio GA / closed form       paper 1.8e+05 / 1.3e+05  this run 1.5e+05
 
 ==============================================================================
 PROVENANCE OF THE TWO LATENCY FIGURES
@@ -277,7 +293,7 @@ PROVENANCE OF THE TWO LATENCY FIGURES
     line 64: \SI{13.0}{\decibel} against \SI{1.1}{\decibel} on mobility trace
     line 224: configuration costs $13.3 \pm \SI{1.7}{\decibel}$ at
     line 228: \SI{13.0}{\decibel} against \SI{1.1}{\decibel} for blockage on t
-    line 1043: $13.30 \pm \SI{1.72}{\decibel}$ under specular reflection and
-    line 1087: \text{specular:} && \SI{1.08}{\decibel}\ \text{(blockage)} &+ \S
-    line 1372: \SI{13.0}{\decibel} of latency (Section~\ref{sec:blockage}) &
-    line 1546: which it states and does not model, costs \SI{13.0}{\decibel}, a
+    line 1046: $13.30 \pm \SI{1.72}{\decibel}$ under specular reflection and
+    line 1090: \text{specular:} && \SI{1.08}{\decibel}\ \text{(blockage)} &+ \S
+    line 1374: \SI{13.0}{\decibel} of latency (Section~\ref{sec:blockage}) &
+    line 1548: which it states and does not model, costs \SI{13.0}{\decibel}, a

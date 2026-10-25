@@ -1,6 +1,6 @@
 
 ################################################################
-### compare_models.py   started 22:13:47
+### compare_models.py   started 23:29:04
 ################################################################
 BASE PAPER PARAMETERS (Table 3 / Fig 1 / p7)
   room (5.0, 5.0, 3.0), receiver plane 0.8 m
@@ -28,7 +28,7 @@ wrote fig2_model_comparison.* and fig4_overstatement.*
 ### compare_models.py finished in 2 s (exit 0)
 
 ################################################################
-### validate_optimizers.py   started 22:13:49
+### validate_optimizers.py   started 23:29:06
 ################################################################
 host       : AMD64, numpy 2.5.3
 model      : specular
@@ -50,26 +50,26 @@ B. assignment search (dim = K = 400, 25 local targets, spacing 5.3 cm)
    budget: 45,000 fitness evaluations for every algorithm
 
 alg     best dB     gap    evals  t_eval ms  tau_comp  verdict
-TLBO      56.49    2.58   45,030      0.113     5.10s  stalls (premature convergence)
-GA        59.06    0.00   45,030      0.113     5.08s  converges
-PSO       57.41    1.65   45,030      0.111     5.00s  partial
+TLBO      56.49    2.58   45,030      0.115     5.16s  stalls (premature convergence)
+GA        59.06    0.00   45,030      0.117     5.26s  converges
+PSO       57.41    1.65   45,030      0.118     5.29s  partial
 
-t_eval (single user) = 0.112 ms   <- Day 9 latency input
+t_eval (single user) = 0.116 ms   <- Day 9 latency input
 
-   best metaheuristic (GA) needs 5.08 s to come within 0.00 dB of the optimum.
-   a user at 0.5 m/s travels   2.5 m in that time (room is 5 m across)
-   a user at 1.0 m/s travels   5.1 m in that time (room is 5 m across)
-   a user at 1.5 m/s travels   7.6 m in that time (room is 5 m across)
+   best metaheuristic (GA) needs 5.26 s to come within 0.00 dB of the optimum.
+   a user at 0.5 m/s travels   2.6 m in that time (room is 5 m across)
+   a user at 1.0 m/s travels   5.3 m in that time (room is 5 m across)
+   a user at 1.5 m/s travels   7.9 m in that time (room is 5 m across)
    analytic bisector reaches the SAME optimum in O(K) = 400 operations, no search at all.
 
 wrote fig3_convergence.pdf / .png
 
-t_eval (room-wide, 121 points) = 12.85 ms
-   a 30x60 TLBO run costs 46.3 s of controller time
-### validate_optimizers.py finished in 19 s (exit 0)
+t_eval (room-wide, 121 points) = 12.20 ms
+   a 30x60 TLBO run costs 43.9 s of controller time
+### validate_optimizers.py finished in 20 s (exit 0)
 
 ################################################################
-### sweep_panel.py   started 22:14:09
+### sweep_panel.py   started 23:29:26
 ################################################################
   panel    pitch  cos min  cos max  spec min  spec max  gap mean
     [m]     [mm]     [dB]     [dB]      [dB]      [dB]      [dB]
@@ -91,7 +91,7 @@ wrote: fig5_panel_sweep.pdf, fig5_panel_sweep.png
 ### sweep_panel.py finished in 2 s (exit 0)
 
 ################################################################
-### sweep_power.py   started 22:14:10
+### sweep_power.py   started 23:29:28
 ################################################################
 [sweep_power]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True   [reproduction script: diffuse OFF]
 
@@ -120,7 +120,7 @@ wrote: fig12_power_sweep.pdf, fig12_power_sweep.png
 ### sweep_power.py finished in 2 s (exit 0)
 
 ################################################################
-### day4_orientation.py   started 22:14:12
+### day4_orientation.py   started 23:29:30
 ################################################################
 [day4_orientation]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
 Random device orientation model (Soltani et al. 2019)
@@ -178,10 +178,10 @@ specular  walking         -4.34        0.00      2.1%
   charged for an arbitrary fallback index, not for lacking pose.)
 
 wrote: fig6_orientation.pdf, fig6_orientation.png
-### day4_orientation.py finished in 68 s (exit 0)
+### day4_orientation.py finished in 72 s (exit 0)
 
 ################################################################
-### day5_mobility.py   started 22:15:20
+### day5_mobility.py   started 23:30:42
 ################################################################
 [day5_mobility]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
 50 seeds x 20 s at dt = 20 ms, activity = walking
@@ -230,7 +230,7 @@ wrote: fig7_staleness.pdf, fig7_staleness.png
 ### day5_mobility.py finished in 195 s (exit 0)
 
 ################################################################
-### day6_blockage.py   started 22:18:35
+### day6_blockage.py   started 23:33:57
 ################################################################
 Obstacles from the base paper's Table 3 [xmin, xmax, ymin, ymax, height, rho]:
   table  [2.0, 3.0, 2.0, 3.0, 0.75, 0.5]
@@ -272,10 +272,10 @@ Compounding: total loss at tau = 50 ms WITH mobile blockage, vs the clean tau = 
   specular  blockage  1.08 dB + latency 12.99 dB = 14.07 dB
 
 wrote: fig8_blockage.pdf, fig8_blockage.png
-### day6_blockage.py finished in 152 s (exit 0)
+### day6_blockage.py finished in 144 s (exit 0)
 
 ################################################################
-### day7_noise.py   started 22:21:07
+### day7_noise.py   started 23:36:21
 ################################################################
 [day7_noise]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True  [sweeps diffuse on/off by design]
 A. AMBIENT SHOT NOISE
@@ -323,15 +323,15 @@ The floor: what survives when the configuration is fully stale
    paper's position, which is worth saying plainly.
 
 wrote: fig9_augmented.pdf, fig9_augmented.png
-### day7_noise.py finished in 92 s (exit 0)
+### day7_noise.py finished in 85 s (exit 0)
 
 ################################################################
-### day8_proposed.py   started 22:22:39
+### day8_proposed.py   started 23:37:46
 ################################################################
 CONTROL COST PER UPDATE, K = 400 mirrors
-  closed-form bisector       39.8 us   (measured)
+  closed-form bisector       34.3 us   (measured)
   GA (frozen run, measured)   7690000 us   = 7.69 s
-  ratio                    193316x
+  ratio                    224112x
 
 scheme                order                      fitness evals/update
 closed-form bisector  O(K)                                          0
@@ -396,26 +396,26 @@ Gain over the metaheuristic baseline [dB]
   50ms  0.10m          1.48         0.57    15.46
   50ms  0.20m          1.48         0.09    15.46
 
-Fraction of the genie bound recovered
+Fraction of the genie bound recovered, in dB over the no-IRS link
  slew  sigma   closed form   predictive
   10ms  0.00m           73%         100%
   10ms  0.01m           73%          66%
-  10ms  0.02m           73%          37%
+  10ms  0.02m           73%          38%
   10ms  0.04m           73%          20%
-  10ms  0.05m           73%          12%
+  10ms  0.05m           73%          13%
   10ms  0.10m           73%           4%
   10ms  0.20m           73%           1%
-  20ms  0.00m           37%         100%
-  20ms  0.01m           37%          65%
-  20ms  0.02m           37%          37%
-  20ms  0.04m           37%          20%
-  20ms  0.05m           37%          12%
-  20ms  0.10m           37%           4%
-  20ms  0.20m           37%           1%
+  20ms  0.00m           38%         100%
+  20ms  0.01m           38%          66%
+  20ms  0.02m           38%          38%
+  20ms  0.04m           38%          20%
+  20ms  0.05m           38%          13%
+  20ms  0.10m           38%           4%
+  20ms  0.20m           38%           1%
   50ms  0.00m           10%          97%
   50ms  0.01m           10%          64%
   50ms  0.02m           10%          37%
-  50ms  0.04m           10%          19%
+  50ms  0.04m           10%          20%
   50ms  0.05m           10%          12%
   50ms  0.10m           10%           4%
   50ms  0.20m           10%           1%
@@ -453,10 +453,10 @@ Measured: which scheme wins (mean SNR, dB)
   headline contribution.
 
 wrote: fig10_proposed.pdf, fig10_proposed.png
-### day8_proposed.py finished in 457 s (exit 0)
+### day8_proposed.py finished in 463 s (exit 0)
 
 ################################################################
-### day9_ber.py   started 22:30:16
+### day9_ber.py   started 23:45:29
 ################################################################
 [day9_ber]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
 (a) BER vs transmit power, 50 seeds, specular model, slew 10 ms, sigma 5 cm
@@ -497,7 +497,7 @@ wrote: fig11_ber.pdf, fig11_ber.png
 ### day9_ber.py finished in 44 s (exit 0)
 
 ################################################################
-### DIAGNOSTIC physical_c.py   started 22:31:00
+### DIAGNOSTIC physical_c.py   started 23:46:14
 ################################################################
 panel 1.0 x 1.0 m, 10x10 elements per panel, 400 elements total
 per-element area A_m = 0.01000 m^2 = 100.00 cm^2 (pitch 111.1 mm)
@@ -522,7 +522,7 @@ Overstatement factor at the median: 1x (0.0 dB of reflected power)
 ### physical_c.py finished in 1 s (exit 0)
 
 ################################################################
-### DIAGNOSTIC aperture_stop.py   started 22:31:00
+### DIAGNOSTIC aperture_stop.py   started 23:46:14
 ################################################################
 Divergence in the genuine aperture-stop regime
 (per-element c = min(1, projected area / cone), both models)
@@ -548,10 +548,10 @@ Divergence in the genuine aperture-stop regime
        1.0      100.00         76x
        2.0      400.00        301x
        4.0     1600.00       1255x
-### aperture_stop.py finished in 17 s (exit 0)
+### aperture_stop.py finished in 18 s (exit 0)
 
 ################################################################
-### DIAGNOSTIC noise_regime.py   started 22:31:18
+### DIAGNOSTIC noise_regime.py   started 23:46:32
 ################################################################
 Divergence in SNR dB against the gain divergence Delta_H.
 Delta_H = 20 log10(H_cos / H_spec), free of the noise regime.
@@ -573,7 +573,7 @@ SNR divergence falls is the link moving between the two.
 ### noise_regime.py finished in 1 s (exit 0)
 
 ################################################################
-### DIAGNOSTIC bisector_bound.py   started 22:31:19
+### DIAGNOSTIC bisector_bound.py   started 23:46:33
 ################################################################
  alpha_min      bisector       refined    gap [dB]   predicted
      0.10 deg    9.7586e-04    9.7586e-04     0.00000     0.00000
@@ -587,7 +587,7 @@ predicted = 10log10(1 + alpha^2 tan^2(theta_i) / 4pi^2), worst mirror
 ### bisector_bound.py finished in 12 s (exit 0)
 
 ################################################################
-### DIAGNOSTIC crossover.py   started 22:31:31
+### DIAGNOSTIC crossover.py   started 23:46:45
 ################################################################
        c   IRS gain   latency   blockage   lat-blk
   0.0200    0.55 dB   0.55 dB   25.80 dB -25.25 dB

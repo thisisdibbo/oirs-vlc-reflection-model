@@ -18,7 +18,9 @@ Every figure and every number in the paper is produced by the code here.
 in it verbatim, under a banner stating the configuration that produced it. Two
 kinds of number are the stated exceptions — measured timings, which depend on
 the machine, and the metaheuristic gaps, which depend on its floating-point
-behaviour — and `verify_paper.py` checks everything else exactly.
+behaviour — and `verify_paper.py` checks everything else exactly. The timings
+the paper quotes come from the earlier runs kept in `archive/`, and
+`verify_paper.py` checks those too.
 
 ---
 
@@ -57,8 +59,9 @@ python verify_paper.py        # ~20 minutes: every figure, freeze_run.log, then 
 
 `verify_paper.py` runs every experiment and diagnostic, writes
 `freeze_run.log`, then checks each number the paper cites against that log and
-writes `verification_report.txt`. Expect `61 of 61 cited numbers reproduced`.
-To re-check an existing log without re-running the experiments:
+writes `verification_report.txt`. Expect `60 of 60 cited numbers reproduced`
+and `8 of 8 quoted timings found in the archived logs`. To re-check an existing
+log without re-running the experiments:
 
 ```bash
 python verify_paper.py --check    # about a minute
@@ -138,9 +141,11 @@ choice, not the flattering one.
 | `freeze.py` | **the frozen configuration** |
 | `plotting.py` | figure saving and publication typography |
 
-**Experiments** — each writes one or two figures and prints its own findings
+**Experiments** — each writes one or two figures and prints its own findings.
+File numbers follow the order in which the experiments were written, not the
+figure numbers in the paper.
 
-| script | figure | question |
+| script | figure file | question |
 |---|---|---|
 | `compare_models.py` | 2, 4 | Does the reproduction match? How large is the overstatement? |
 | `validate_optimizers.py` | 3 | Is the problem searchable at all, under each model? |
@@ -173,6 +178,7 @@ Figure 1 is drawn in TikZ (`fig1_geometry.tex`) and has no script.
 | `verify_paper.py` | run everything, then check every cited number against the log |
 | `run_freeze.py` | run everything without the check |
 | `verification_report.txt` | the last check's output |
+| `archive/` | the earlier run logs the paper's quoted timings come from |
 
 ---
 
@@ -203,10 +209,13 @@ peaks once the reflected path dominates, and then declines as the link moves
 toward the shot-noise limit; `noise_regime.py` separates the two effects.
 
 A closed-form bisector update costs 64.9 µs against 11.84 s for a converged GA
-on the machine that produced the reported timings, and recovers 73 % of the
-zero-latency bound with no orientation estimate at all. Timings depend on the
-machine; the machine-independent statements are that the update is *O(K)* and
-requires no search, and that the ratio is about five orders of magnitude.
+in the original frozen run (Linux x86-64), and 39.8 µs against 5.08 s on an
+Intel Core i9-14900HX under Windows 11. It recovers 73 % of the zero-latency
+bound with no orientation estimate at all. Timings depend on the machine; the
+machine-independent statements are that the update is *O(K)* and requires no
+search, and that the ratio is about five orders of magnitude. Days 8 and 9
+charge the metaheuristic a pinned 7.69 s (`freeze.py`), so their results do not
+depend on the machine.
 
 ### Correction to an earlier version
 

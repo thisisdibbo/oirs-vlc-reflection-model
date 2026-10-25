@@ -53,14 +53,13 @@ N_DROPS       = 2000 if FAST else 10000   # Day 4 Monte Carlo drops
 # ---- channel -------------------------------------------------------------
 DIFFUSE = True          # first-order diffuse bounce in the extension experiments
 
-# ---- measured controller timings -----------------------------------------
-# Both are produced by validate_optimizers.py on the frozen run and pinned here
-# so that Days 8 and 9 charge the metaheuristic the same latency the optimiser
-# section reports. Re-measure and update BOTH if the hardware changes; the
-# ratio to the closed form is machine-dependent, which is why the paper reports
-# it as an order of magnitude rather than a precise factor.
-T_EVAL_MS  = 0.169      # one fitness evaluation, single user
-TAU_META_S = 7.69       # GA convergence: 45,000 evaluations at T_EVAL_MS
+# ---- pinned controller timing --------------------------------------------
+# Measured by validate_optimizers.py in the first frozen run on Linux
+# (archive/freeze_run_linux_1.log: GA, 45,030 evaluations at 0.171 ms).
+# Days 8 and 9 charge the metaheuristic this pinned value instead of a fresh
+# measurement, so their results do not depend on the machine that runs them.
+T_EVAL_MS  = 0.171      # GA cost per evaluation in that run; not used by any experiment
+TAU_META_S = 7.69       # GA convergence time charged by Days 8 and 9
 
 # ---- figures -------------------------------------------------------------
 FIG_DPI = 600           # raster fallback; the PDF vector copy is what ships
