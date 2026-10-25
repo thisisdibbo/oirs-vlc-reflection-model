@@ -6,22 +6,16 @@ title: >-
 authors:
   - family-names: Rahman
     given-names: Md. Mahin
-    email: mahinrahman22@iut-dhaka.edu
-    affiliation: >-
-      Department of Electrical and Electronic Engineering, Islamic University
-      of Technology, Gazipur, Bangladesh
+    email: mr.d2003feb@gmail.com
+    website: "https://github.com/thisisdibbo"
   - family-names: Tabassum
     given-names: Sadia
-    affiliation: Islamic University of Technology
   - family-names: Mubasshirah
     given-names: Mumtazah
-    affiliation: Islamic University of Technology
   - family-names: Hossain
     given-names: Tahiya
-    affiliation: Islamic University of Technology
   - family-names: Nujabah
     given-names: Subaita
-    affiliation: Islamic University of Technology
 license: MIT
 repository-code: "https://github.com/thisisdibbo/oirs-vlc-reflection-model"
 doi: "10.5281/zenodo.22917919"
