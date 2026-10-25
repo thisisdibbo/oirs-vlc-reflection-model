@@ -36,7 +36,7 @@ SPEED = 1.0
 MODEL = "specular"
 SLEWS_MS = (10, 20, 50)        # base paper's stated actuator range
 TAU_META_S = freeze.TAU_META_S   # measured by validate_optimizers.py, pinned in freeze.py
-SIGMAS = (0.0, 0.05, 0.10, 0.20)   # position estimation error [m]
+SIGMAS = (0.0, 0.01, 0.02, 0.035, 0.05, 0.10, 0.20)   # position estimation error [m]
 
 publication_style()
 cfg = Config()
@@ -181,7 +181,7 @@ print("\n  Sub-centimetre tracking is not available from VLC positioning, so")
 print("  the ROBUST recommendation is the reactive closed form: it recovers")
 print(f"  {100*(res[(10,0.0)]['closed form'][0]-res[(10,0.0)]['metaheuristic'][0])/(res[(10,0.0)]['genie (tau = 0)'][0]-res[(10,0.0)]['metaheuristic'][0]):.0f}% "
       f"of the bound at 10 ms slew with no pose estimate at all, and its")
-print("  performance does not depend on tracking accuracy. Prediction is an")
+print("  performance is measured against an exact-position benchmark. Prediction is an")
 print("  upgrade for systems that can localise to a few centimetres, not the")
 print("  headline contribution.")
 
@@ -211,7 +211,7 @@ for sl, mk in zip(SLEWS_MS, "os^"):
                  label=f"closed form, slew {sl} ms")
 axes[1].axhline(res[(10, 0.0)]["metaheuristic"][0], color="k", ls=":",
                 label="metaheuristic baseline")
-axes[1].set_xlabel("position / velocity estimation error $\\sigma$ [m]")
+axes[1].set_xlabel("position error $\\sigma_p$ [m]  (velocity error set equal)")
 axes[1].set_ylabel("mean SNR [dB]")
 axes[1].set_title("Sensitivity to tracking accuracy")
 axes[1].grid(alpha=.3)

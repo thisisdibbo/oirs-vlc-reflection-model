@@ -105,7 +105,7 @@ for k in ("reactive closed form", "predictive", "genie"):
 # ==========================================================================
 # (b) element-count sweep -- parallels Fig. 6 of the reference system
 # ==========================================================================
-PER_PANEL = (3, 4, 5, 6, 8, 10)
+PER_PANEL = (3, 4, 5, 6, 8, 10, 14, 20)
 print(f"\n(b) Element sweep (their Fig. 6 shows 48-50 dB -> 85-92 dB "
       f"over 0 -> 400 elements)")
 print(f"\n{'K':>5}{'cosine SNR':>13}{'specular SNR':>15}{'gap':>8}")
@@ -129,10 +129,13 @@ for npp in PER_PANEL:
     print(f"{len(mp):5d}{row['cosine']:13.2f}{row['specular']:15.2f}"
           f"{row['cosine']-row['specular']:8.2f}")
 
-print("\n  The overstatement GROWS with array size: the cosine model lets every")
-print("  mirror contribute whatever its orientation, so its gain scales with K")
-print("  more favourably than physics allows. Any extrapolation to large arrays")
-print("  made under that model is therefore optimistic by a growing margin.")
+print("\n  The overstatement grows with array size up to a point: the cosine")
+print("  model lets every mirror contribute whatever its orientation, so its")
+print("  gain scales with K more favourably than specular reflection allows.")
+print("  The gap peaks near K = 256 and then declines, as the reflected path")
+print("  comes to dominate the direct one in both arms. Extrapolations made")
+print("  under the cosine model are optimistic by about the plateau, not by")
+print("  a margin that keeps growing.")
 
 # ==========================================================================
 # figures
@@ -166,7 +169,7 @@ axes[1].fill_between(sweep["K"], sweep["specular"], sweep["cosine"],
                      color="C3", alpha=.12, label="overstatement")
 axes[1].set_xlabel("number of mirror elements $K$")
 axes[1].set_ylabel("mean SNR [dB]")
-axes[1].set_title("Divergence grows with array size", fontsize=10)
+axes[1].set_title("Divergence at the reference-system normalisation", fontsize=10)
 axes[1].grid(alpha=.3)
 axes[1].legend(fontsize=8)
 

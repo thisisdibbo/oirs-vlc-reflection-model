@@ -64,6 +64,15 @@ class GeometryCache:
                      * cfg.t_filter * cfg.g_concentrator
                      * cos_psi_v[:, None, :])
 
+        # Serving-luminaire score: the factors of `base` that vary with the LED
+        # index. cos_psi_v is constant in l, so it cannot change which LED wins
+        # for a given mirror -- but it is exactly 0 outside the field of view,
+        # which collapses the whole slice and makes np.argmax(base) return index
+        # 0 regardless of geometry. Selecting on this array instead keeps the
+        # choice well defined for elements the controller believes are not
+        # illuminating the detector.
+        self.led_score = np.power(cos_phi_v, cfg.m)[:, :, None] / dsum ** 2
+
         r_pd = np.sqrt(cfg.a_pd / np.pi)
         alpha = np.maximum(np.arctan(r_pd / self.d2), np.radians(accept_floor_deg))
         self.one_minus_cos_acc = np.maximum(1.0 - np.cos(alpha), 1e-12)
@@ -119,7 +128,7 @@ def analytic_normals(cache: GeometryCache, rx_index=0):
     u_out = _unit(rx[None, :] - cache.mirror_pos)
     if cache.model == "cosine":
         return u_out
-    best = np.argmax(cache.base[:, :, rx_index], axis=1)
+    best = np.argmax(cache.led_score[:, :, rx_index], axis=1)
     u_in = cache.u_in[np.arange(cache.K), best]
     return _unit(u_in + u_out)
 
@@ -232,7 +241,7 @@ class AssignmentObjective(Objective):
             if cache.model == "cosine":
                 n_hat = u_out
             else:
-                best = np.argmax(cache.base.max(axis=2), axis=1)
+                best = np.argmax(cache.led_score.max(axis=2), axis=1)
                 n_hat = _unit(cache.u_in[np.arange(cache.K), best] + u_out)
             o, g_ = normals_to_angles(n_hat, cache.frames)
             om[:, g], ga[:, g] = repair(o, g_, max_angle=max_angle)

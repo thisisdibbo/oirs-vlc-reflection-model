@@ -4,21 +4,21 @@
 
 Simulation code for the paper:
 
-> **On the Reflection Model in Mirror-Array Intelligent Reflecting Surfaces for
-> Visible Light Communication: Overstated Gain, Analytic Optima, and the Cost of
-> Control Latency**
+> **Closed-Form Mirror Steering and the Cost of Control Latency in Optical
+> IRS-Assisted Visible Light Communication**
 > Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
-> Subaita Nujabah. Department of Electrical and Electronic Engineering,
-> Islamic University of Technology, Gazipur, Bangladesh.
+> Subaita Nujabah.
 >
-> *Manuscript in preparation, intended for Optics Communications.* This
+> *Manuscript in preparation for Optical and Quantum Electronics.* This
 > repository is the code and the frozen run behind it; the manuscript itself is
 > not published here.
 
-Every figure and every number in the paper is produced by the code here, in one
-frozen run. `freeze_run.log` is that run's complete output: each figure's
-numbers appear in it verbatim, under a banner stating the configuration that
-produced them.
+Every figure and every number in the paper is produced by the code here.
+`freeze_run.log` is the complete output of one frozen run: each number appears
+in it verbatim, under a banner stating the configuration that produced it. Two
+kinds of number are the stated exceptions — measured timings, which depend on
+the machine, and the metaheuristic gaps, which depend on its floating-point
+behaviour — and `verify_paper.py` checks everything else exactly.
 
 ---
 
@@ -44,7 +44,7 @@ here** — download it from the publisher.
 
 ---
 
-## Reproducing the figures
+## Reproducing and verifying the paper
 
 ```bash
 git clone <this repo>
@@ -52,8 +52,19 @@ cd <this repo>
 python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-sh run_freeze.sh          # ~15 minutes, writes every figure and freeze_run.log
+python verify_paper.py        # ~20 minutes: every figure, freeze_run.log, then a check
 ```
+
+`verify_paper.py` runs every experiment and diagnostic, writes
+`freeze_run.log`, then checks each number the paper cites against that log and
+writes `verification_report.txt`. Expect `61 of 61 cited numbers reproduced`.
+To re-check an existing log without re-running the experiments:
+
+```bash
+python verify_paper.py --check    # about a minute
+```
+
+`run_freeze.py` regenerates the figures and the log without the check.
 
 For a quick check that the code works, without the frozen sample sizes:
 
@@ -144,6 +155,25 @@ choice, not the flattering one.
 
 Figure 1 is drawn in TikZ (`fig1_geometry.tex`) and has no script.
 
+**Diagnostics** — separate settings, each stated where the paper cites it
+
+| script | question |
+|---|---|
+| `physical_c.py` | Is each mirror larger than the ray cone it must pass? (justifies `c = 1`) |
+| `aperture_stop.py` | Worst-case aperture margin across the panel sweep |
+| `bisector_bound.py` | How far is the closed-form bisector from a locally refined optimum? |
+| `noise_regime.py` | Why the model divergence peaks and then declines with array size |
+| `crossover.py` | At what surface gain does latency overtake blockage? |
+| `check_pose.py` | Regression test for the orientation defect described below |
+
+**Tooling**
+
+| file | purpose |
+|---|---|
+| `verify_paper.py` | run everything, then check every cited number against the log |
+| `run_freeze.py` | run everything without the check |
+| `verification_report.txt` | the last check's output |
+
 ---
 
 ## Headline results
@@ -153,44 +183,73 @@ All from `freeze_run.log`.
 | | cosine model | specular reflection |
 |---|---|---|
 | overstatement vs specular | 6.28 dB mean, 8.69 dB max | — |
-| overstatement at *K* = 36 → 400 | 4.04 dB → 6.38 dB | — |
-| value of knowing the device pose | **0.00 dB** | 2.24–2.58 dB |
-| cost of a stale configuration at 50 ms | **0.00 ± 0.00 dB** | 13.30 ± 1.72 dB |
+| overstatement with array size | 4.04 dB at *K* = 36, peak 6.39 dB near *K* = 256, 5.69 dB at *K* = 1600 | — |
+| value of knowing the device orientation | **0.00 dB** | **0.00 dB** |
+| cost of a stale configuration at 50 ms, no occupant | **0.00 ± 0.00 dB** | 13.30 ± 1.72 dB |
+| cost of a stale configuration at 50 ms, mobile occupant | 0.00 dB | 12.99 dB |
 | cost of blockage, mobile occupant | 1.22 dB | 1.08 dB |
 
-Under the cosine model the optimal normal depends only on mirror and receiver
-*positions*. Device orientation therefore cannot change the steering decision,
-and a configuration computed a second ago is as good as one computed now. Those
-two zeros are structural, not rounding: they are what the model permits.
+Neither optimum contains the detector normal: the cosine optimum is `u_out` and
+the specular optimum is the bisector of `u_in` and `u_out`, both built from
+positions alone. Device orientation therefore cannot change the steering
+decision under either model, and knowing it is worth exactly nothing to a
+controller whose only decision is the element normal. Under the cosine model,
+in addition, the optimum moves so slowly with the receiver that a stale
+configuration costs almost nothing — 0.00 dB at 50 ms, and below 0.4 dB out to
+a full second.
 
-A closed-form bisector update costs 64.9 µs against 7.69 s for a converged GA
-and recovers 73 % of the zero-latency bound with no pose estimate at all. Both
-timings are machine-dependent; the machine-independent statement is that the
-update is *O(K)* and requires no search.
+The overstatement rises with array size while the direct path still dilutes it,
+peaks once the reflected path dominates, and then declines as the link moves
+toward the shot-noise limit; `noise_regime.py` separates the two effects.
+
+A closed-form bisector update costs 64.9 µs against 11.84 s for a converged GA
+on the machine that produced the reported timings, and recovers 73 % of the
+zero-latency bound with no orientation estimate at all. Timings depend on the
+machine; the machine-independent statements are that the update is *O(K)* and
+requires no search, and that the ratio is about five orders of magnitude.
+
+### Correction to an earlier version
+
+An earlier version of this repository reported that knowing the device
+orientation was worth 2.24–2.58 dB under specular reflection. That figure was
+an implementation artefact. The serving-luminaire choice in `fitness.py` took
+`np.argmax` over an array that is exactly zero for elements outside the
+detector's field of view, so it silently fell back to luminaire 0 for most of
+the array; the orientation-blind controller was being charged for that fallback
+index rather than for lacking orientation. With the selection made independent
+of the assumed orientation the benefit is 0.00 dB under both models.
+`check_pose.py` reproduces the defect and the fix.
 
 ---
 
 ## Requirements
 
 Python 3.9+, NumPy, Matplotlib, SciPy. See `requirements.txt`. No GPU, no
-compilation. The frozen run takes about 15 minutes on a laptop CPU; it was
-measured on an Intel Core i9-14900HX.
+compilation. The full verification takes about 20 minutes on a laptop CPU; it
+was measured on an Intel Core i9-14900HX.
 
 ---
 
 ## Citing
 
-The manuscript is not yet submitted, so there is no journal volume, pages or
+The manuscript is not yet published, so there is no journal volume, pages or
 article DOI to cite. Until there is, cite this repository by its archive DOI:
 
 > Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
 > Subaita Nujabah. *Reflection models in mirror-array optical IRS for visible
-> light communication: simulation code*, v1.0.0, Zenodo, 2026.
+> light communication: simulation code*, Zenodo, 2026.
 > [doi:10.5281/zenodo.22917919](https://doi.org/10.5281/zenodo.22917919)
 
- `CITATION.cff` carries the metadata and GitHub renders a "Cite
-this repository" button from it; its `status:` field is updated as the paper
-moves from preparation to submission to publication.
+`CITATION.cff` carries the metadata and GitHub renders a "Cite this
+repository" button from it; its `status:` field is updated as the paper moves
+from preparation to submission to publication.
+
+---
+
+## Author
+
+Md. Mahin Rahman — [github.com/thisisdibbo](https://github.com/thisisdibbo) —
+mr.d2003feb@gmail.com
 
 ## Licence
 

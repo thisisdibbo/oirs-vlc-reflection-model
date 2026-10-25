@@ -28,9 +28,8 @@ doi: "10.5281/zenodo.22917919"
 preferred-citation:
   type: article
   title: >-
-    On the Reflection Model in Mirror-Array Intelligent Reflecting Surfaces for
-    Visible Light Communication: Overstated Gain, Analytic Optima, and the Cost
-    of Control Latency
+    Closed-Form Mirror Steering and the Cost of Control Latency in Optical
+    IRS-Assisted Visible Light Communication
   authors:
     - family-names: Rahman
       given-names: Md. Mahin
@@ -42,7 +41,7 @@ preferred-citation:
       given-names: Tahiya
     - family-names: Nujabah
       given-names: Subaita
-  journal: "Optics Communications"   # intended venue
+  journal: "Optical and Quantum Electronics"   # intended venue
   year: 2026
   # CFF status values: in-preparation, abstract, submitted,
   # in-press, advance-online, preprint. Update as the paper moves.
