@@ -6,7 +6,10 @@ title: >-
 authors:
   - family-names: Rahman
     given-names: Md. Mahin
-    email: mr.d2003feb@gmail.com
+    email: mahinrahman22@iut-dhaka.edu
+    affiliation: >-
+      Department of Electrical and Electronic Engineering, Islamic University
+      of Technology, Gazipur, Bangladesh
     website: "https://github.com/thisisdibbo"
   - family-names: Tabassum
     given-names: Sadia
@@ -18,7 +21,9 @@ authors:
     given-names: Subaita
 license: MIT
 repository-code: "https://github.com/thisisdibbo/oirs-vlc-reflection-model"
-doi: "10.5281/zenodo.22917919"
+version: v1.1.0
+date-released: 2026-10-25
+doi: "10.5281/zenodo.23647456"
 preferred-citation:
   type: article
   title: >-

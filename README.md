@@ -1,6 +1,6 @@
 # Reflection models in mirror-array optical IRS for visible light communication
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22917919.svg)](https://doi.org/10.5281/zenodo.22917919)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23647456.svg)](https://doi.org/10.5281/zenodo.23647456)
 
 Simulation code for the paper:
 
@@ -246,8 +246,8 @@ article DOI to cite. Until there is, cite this repository by its archive DOI:
 
 > Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
 > Subaita Nujabah. *Reflection models in mirror-array optical IRS for visible
-> light communication: simulation code*, Zenodo, 2026.
-> [doi:10.5281/zenodo.22917919](https://doi.org/10.5281/zenodo.22917919)
+> light communication: simulation code*, version 1.1.0, Zenodo, 2026.
+> [doi:10.5281/zenodo.23647456](https://doi.org/10.5281/zenodo.23647456)
 
 `CITATION.cff` carries the metadata and GitHub renders a "Cite this
 repository" button from it; its `status:` field is updated as the paper moves
@@ -257,8 +257,9 @@ from preparation to submission to publication.
 
 ## Author
 
-Md. Mahin Rahman — [github.com/thisisdibbo](https://github.com/thisisdibbo) —
-mr.d2003feb@gmail.com
+Md. Mahin Rahman — Department of Electrical and Electronic Engineering, Islamic
+University of Technology, Gazipur, Bangladesh —
+[github.com/thisisdibbo](https://github.com/thisisdibbo) — mahinrahman22@iut-dhaka.edu
 
 ## Licence
 
