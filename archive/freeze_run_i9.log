@@ -1,0 +1,610 @@
+
+################################################################
+### compare_models.py   started 22:13:47
+################################################################
+BASE PAPER PARAMETERS (Table 3 / Fig 1 / p7)
+  room (5.0, 5.0, 3.0), receiver plane 0.8 m
+  B = 50 MHz, delta = 0.9, m = 1.00, Gc = 3.00
+  ambient shot noise: OFF (as in paper)
+  mirrors: 400 = 10^2 x 4 panels, panel (1.0, 1.0) m [ASSUMED]
+  fitness: f = 0.7*SNR_linear - 0.3*CoV   (Eq. 15)
+
+scheme                      SNR min  SNR max    mean  CoV(Prx)   mean Prx
+conventional (no IRS)         43.68    51.03   49.10     0.191     42.99u
+IRS, cosine model             50.72    76.46   66.45     0.772    520.52u
+IRS, specular model           49.40    67.77   60.17     0.538    190.20u
+
+OVERSTATEMENT by the cosine model: 0.00 to 8.69 dB  (mean 6.28 dB)
+
+Base paper reports, for comparison:
+  conventional  43 - 51 dB      (their Fig 3a)
+  IRS + blockage 50 - 84 dB     (their Fig 3b)
+
+Searchability of each model (random mirror orientations):
+  cosine    random config reaches >1% of optimum IRS gain in 100.0% of draws
+  specular  random config reaches >1% of optimum IRS gain in   0.0% of draws
+
+wrote fig2_model_comparison.* and fig4_overstatement.*
+### compare_models.py finished in 2 s (exit 0)
+
+################################################################
+### validate_optimizers.py   started 22:13:49
+################################################################
+host       : AMD64, numpy 2.5.3
+model      : specular
+mirrors K  : 400   population 30   iterations 60
+
+user [3.6 1.4]   LoS-only 50.90 dB   analytic optimum 59.06 dB  (+8.16 dB)
+
+A. free-angle search (dim = 2K = 800)
+alg     best dB     gap   evals  verdict
+TLBO      51.07    7.99    3630  infeasible as expected
+GA        50.90    8.16    1830  infeasible as expected
+PSO       51.05    8.01    1830  infeasible as expected
+
+   pointing footprint at median mirror distance: 5.3 cm
+   tiling the whole room would need ~8,836 candidate targets -- rules out room-wide target search
+
+B. assignment search (dim = K = 400, 25 local targets, spacing 5.3 cm)
+   best single target = #12, 59.06 dB   (analytic bisector 59.06 dB)
+   budget: 45,000 fitness evaluations for every algorithm
+
+alg     best dB     gap    evals  t_eval ms  tau_comp  verdict
+TLBO      56.49    2.58   45,030      0.113     5.10s  stalls (premature convergence)
+GA        59.06    0.00   45,030      0.113     5.08s  converges
+PSO       57.41    1.65   45,030      0.111     5.00s  partial
+
+t_eval (single user) = 0.112 ms   <- Day 9 latency input
+
+   best metaheuristic (GA) needs 5.08 s to come within 0.00 dB of the optimum.
+   a user at 0.5 m/s travels   2.5 m in that time (room is 5 m across)
+   a user at 1.0 m/s travels   5.1 m in that time (room is 5 m across)
+   a user at 1.5 m/s travels   7.6 m in that time (room is 5 m across)
+   analytic bisector reaches the SAME optimum in O(K) = 400 operations, no search at all.
+
+wrote fig3_convergence.pdf / .png
+
+t_eval (room-wide, 121 points) = 12.85 ms
+   a 30x60 TLBO run costs 46.3 s of controller time
+### validate_optimizers.py finished in 19 s (exit 0)
+
+################################################################
+### sweep_panel.py   started 22:14:09
+################################################################
+  panel    pitch  cos min  cos max  spec min  spec max  gap mean
+    [m]     [mm]     [dB]     [dB]      [dB]      [dB]      [dB]
+   0.50     55.6    43.68    77.71     43.68     68.91      5.10
+   0.75     83.3    43.68    77.33     43.68     68.61      5.94
+   1.00    111.1    50.72    76.46     49.40     67.77      6.38
+   1.50    166.7    54.05    74.38     52.05     65.75      6.40
+   2.00    222.2    61.54    72.53     57.23     64.30      6.12
+   2.50    277.8    61.65    71.04     57.84     63.30      5.79
+   3.00    333.3    61.11    69.19     57.28     61.79      5.55
+   4.00    444.4    56.90    66.06     54.45     60.07      5.08
+
+  their 84 dB peak is NOT reachable at any panel size up to 4.0 m (best 77.71 dB).
+  Report this: the gap must come from an unstated parameter other than panel extent -- most likely P_t or A_IRS.
+
+  overstatement across the whole sweep: 5.08 to 6.40 dB (mean 5.79 dB) -- insensitive to panel size
+
+wrote: fig5_panel_sweep.pdf, fig5_panel_sweep.png
+### sweep_panel.py finished in 2 s (exit 0)
+
+################################################################
+### sweep_power.py   started 22:14:10
+################################################################
+[sweep_power]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True   [reproduction script: diffuse OFF]
+
+The base paper does not state P_t. Ours is calibrated to its Fig. 3a.
+If the overstatement moved with P_t it would be an artefact of that calibration.
+
+    P_t   cos mean  spec mean  gap mean  gap min  gap max
+    [W]       [dB]       [dB]      [dB]     [dB]     [dB]
+   0.50      57.12      49.99      7.13     1.35    10.41
+   0.75      60.29      53.36      6.94     1.34     9.90
+   1.00      62.48      55.71      6.77     1.33     9.50
+   1.75      66.54      60.16      6.38     1.32     8.69
+   2.50      68.99      62.89      6.10     1.30     8.19
+   3.00      70.20      64.25      5.95     1.29     7.96
+
+overstatement across a 6-fold range of transmit power: 5.95 to 7.13 dB (mean 6.55 dB)
+  The gap varies by 1.18 dB across that range and
+  decreases monotonically with P_t: raising the transmit power moves the
+  link towards the shot-noise limit, where SNR grows as P_t rather than
+  P_t^2, so a fixed ratio of received powers maps to a smaller dB gap.
+  The overstatement is therefore a property of the reflection model, not
+  an artefact of the calibrated P_t -- it is present, and of the same
+  order, at every power tested.
+
+wrote: fig12_power_sweep.pdf, fig12_power_sweep.png
+### sweep_power.py finished in 2 s (exit 0)
+
+################################################################
+### day4_orientation.py   started 22:14:12
+################################################################
+[day4_orientation]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
+Random device orientation model (Soltani et al. 2019)
+sitting  truncated laplace  mu = 41.39 deg, sigma = 7.68 deg, azimuth uniform [0, 2pi)
+walking  truncated gaussian mu = 29.67 deg, sigma = 7.78 deg, azimuth uniform [0, 2pi)
+
+PD field of view: 60 deg (their Table 3)
+Monte Carlo: 10000 drops per case, seed 20260922
+
+model     receiver             mean*  median  5th pct   outage   lost
+cosine    face-up              66.33   66.47    55.67     0.0%   0.0%
+cosine    sitting, genie       72.08   73.45    61.31     2.5%   0.0%
+cosine    sitting, blind       72.08   73.45    61.31     2.5%   0.0%
+cosine    walking, genie       71.25   72.33    62.55     1.7%   0.0%
+cosine    walking, blind       71.25   72.33    62.55     1.7%   0.0%
+specular  face-up              60.37   60.29    52.90     0.0%   0.0%
+specular  sitting, genie       65.58   66.87    55.24     3.0%   0.0%
+specular  sitting, blind       65.58   66.87    55.24     3.0%   0.0%
+specular  walking, genie       64.71   65.67    56.54     2.1%   0.0%
+specular  walking, blind       64.71   65.67    56.54     2.1%   0.0%
+
+(* mean over surviving links only. outage = P[SNR < 50 dB] including lost links;
+   lost = fraction with zero received power, every ray outside the FoV)
+
+Decomposition [dB]; positive = SNR lost
+model     activity  tilt effect  pose-blind  outage +
+cosine    sitting         -5.75        0.00      2.5%
+cosine    walking         -4.92        0.00      1.7%
+specular  sitting         -5.21        0.00      3.0%
+specular  walking         -4.34        0.00      2.1%
+
+  tilt effect = face-up -> genie. NEGATIVE means tilting HELPS: the
+                IRS panels sit on the walls at z = 1.5 m, so a face-up
+                PD is badly aimed for wall reflections. Mean SNR rises,
+                but see the outage column -- the spread widens sharply.
+  pose-blind  = genie -> blind, the cost of the controller not knowing
+                the device pose, i.e. what assuming a face-up PD spends.
+
+  NOTE pose-blind is exactly 0.00 dB under BOTH models. This is
+  structural, not a rounding artefact. The cosine optimum n = u_out and
+  the specular optimum bisector(u_in, u_out) are both built from
+  POSITIONS alone; neither contains the detector normal. Device
+  orientation therefore cannot change the optimal steering under either
+  formulation, and knowing the pose is worth precisely nothing to a
+  controller whose only decision is the element normal. Orientation-aware
+  IRS control is not merely unimplemented but inexpressible in both
+  models as formulated: pose can enter only through a further decision
+  variable -- element activation, target assignment or source selection
+  under a constraint -- that neither closed form carries.
+
+  (An earlier version of this script reported a nonzero specular gap.
+  That was an artefact: the serving-luminaire argmax ran over an array
+  carrying cos_psi, which is zero outside the field of view, so the whole
+  slice collapsed and np.argmax returned index 0. The pose-blind arm was
+  charged for an arbitrary fallback index, not for lacking pose.)
+
+wrote: fig6_orientation.pdf, fig6_orientation.png
+### day4_orientation.py finished in 68 s (exit 0)
+
+################################################################
+### day5_mobility.py   started 22:15:20
+################################################################
+[day5_mobility]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
+50 seeds x 20 s at dt = 20 ms, activity = walking
+tau_c = 0.5 s [modelling choice]; accept_floor = 0.5 deg (footprint 5.2 cm at 3 m)
+Base paper's stated mirror response: 10-50 ms (their p.8)
+
+  done cosine
+  done specular
+
+Stale-configuration penalty [dB], mean +/- std over 50 seeds
+model      speed            20            50           100           200           500          1000
+           [m/s]            ms            ms            ms            ms            ms            ms
+cosine       0.5    0.00±0.00     0.00±0.00     0.00±0.00     0.01±0.00     0.03±0.01     0.12±0.05 
+cosine       1.0    0.00±0.00     0.00±0.00     0.01±0.00     0.02±0.01     0.12±0.04     0.39±0.14 
+cosine       1.5    0.00±0.00     0.00±0.00     0.01±0.00     0.05±0.01     0.24±0.07     0.67±0.24 
+specular     0.5    4.17±1.42     9.56±2.22    14.06±1.41    15.13±1.15    15.42±1.09    15.46±1.07 
+specular     1.0    9.54±2.24    13.30±1.72    15.22±1.15    15.58±1.01    15.67±0.96    15.71±0.95 
+specular     1.5   12.04±1.87    14.25±1.28    15.26±0.94    15.46±0.88    15.51±0.84    15.54±0.82 
+
+At tau = 50 ms (the upper end of the base paper's own actuator spec):
+  cosine    0.5 m/s ->   0.00 ± 0.00 dB
+  cosine    1.0 m/s ->   0.00 ± 0.00 dB
+  cosine    1.5 m/s ->   0.00 ± 0.00 dB
+  specular  0.5 m/s ->   9.56 ± 2.22 dB
+  specular  1.0 m/s ->  13.30 ± 1.72 dB
+  specular  1.5 m/s ->  14.25 ± 1.28 dB
+
+Robustness: penalty [dB] vs assumed mirror acceptance, specular, 1.0 m/s, 25 seeds
+ accept  footprint           20           50          100          200          500         1000
+   0.10      1.1cm  15.01±1.07   15.52±0.91   15.66±0.90   15.69±0.90   15.68±0.90   15.67±0.91 
+   0.25      2.6cm  13.22±1.69   14.94±1.20   15.58±0.93   15.67±0.91   15.68±0.90   15.67±0.91 
+   0.50      5.2cm   9.67±2.05   13.24±1.71   15.20±1.09   15.57±0.93   15.66±0.91   15.65±0.91 
+   1.00     10.5cm   4.22±1.03    9.65±2.05   13.88±1.56   15.15±1.10   15.56±0.93   15.61±0.91 
+   2.00     21.0cm   1.17±0.25    4.23±1.03   10.94±2.07   13.76±1.59   15.18±1.04   15.43±0.95 
+   5.00     52.5cm   0.28±0.05    0.82±0.16    4.23±1.03    9.37±2.02   13.28±1.65   14.43±1.22 
+
+  cosine model, same conditions:         0.00         0.00         0.01         0.02         0.12         0.39      
+
+  The exact dB at short latency depends on the assumed acceptance,
+  which the base paper does not state. The qualitative result does not:
+  even at 5 deg (a 52 cm footprint, wider than a person) the specular
+  penalty is orders of magnitude above the cosine model's, which stays
+  near zero at every latency tested.
+
+wrote: fig7_staleness.pdf, fig7_staleness.png
+### day5_mobility.py finished in 195 s (exit 0)
+
+################################################################
+### day6_blockage.py   started 22:18:35
+################################################################
+Obstacles from the base paper's Table 3 [xmin, xmax, ymin, ymax, height, rho]:
+  table  [2.0, 3.0, 2.0, 3.0, 0.75, 0.5]
+  sofa   [0.5, 1.5, 0.5, 2.0, 0.85, 0.3]
+  human  [3.0, 3.5, 3.0, 3.5, 1.7, 0.2]
+[day6_blockage]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
+
+50 seeds x 20 s, walking at 1.0 m/s
+
+  done cosine  (0.0% of timesteps dropped: walker inside furniture)
+  done specular  (0.0% of timesteps dropped: walker inside furniture)
+
+Mean SNR [dB] over surviving links, 50 seeds
+model     obstacles            0           20           50          100          500
+cosine    none       71.79±0.83   71.79±0.83   71.79±0.83   71.79±0.84   71.67±0.84 
+cosine    static     71.14±1.07   71.14±1.07   71.14±1.07   71.13±1.07   71.01±1.07 
+cosine    mobile     70.57±1.23   70.57±1.23   70.57±1.23   70.56±1.24   70.45±1.25 
+specular  none       65.29±0.74   55.75±2.30   51.99±1.65   50.07±0.91   49.62±0.66 
+specular  static     64.64±0.95   54.82±2.08   51.35±1.53   49.78±0.88   49.39±0.66 
+specular  mobile     64.22±1.05   54.75±2.22   51.23±1.61   49.50±0.98   49.10±0.79 
+
+Outage P[SNR < 50 dB]   /   total link loss
+model     obstacles               0              20              50             100             500
+cosine    none         0.4% /  0.0%    0.4% /  0.0%    0.4% /  0.0%    0.4% /  0.0%    0.4% /  0.0%
+cosine    static       0.6% /  0.0%    0.6% /  0.0%    0.6% /  0.0%    0.6% /  0.0%    0.6% /  0.0%
+cosine    mobile       2.6% /  0.0%    2.6% /  0.0%    2.6% /  0.0%    2.6% /  0.0%    2.6% /  0.0%
+specular  none         0.5% /  0.0%   20.7% /  0.0%   40.4% /  0.0%   53.3% /  0.0%   58.2% /  0.0%
+specular  static       0.9% /  0.0%   23.4% /  0.0%   45.0% /  0.0%   58.7% /  0.0%   63.5% /  0.0%
+specular  mobile       2.9% /  0.0%   24.1% /  0.0%   45.0% /  0.0%   58.9% /  0.0%   63.7% /  0.0%
+
+Blockage cost at tau = 0 [dB], relative to no obstacles
+  cosine   static    0.66
+  cosine   mobile    1.22
+  specular static    0.65
+  specular mobile    1.08
+
+Compounding: total loss at tau = 50 ms WITH mobile blockage, vs the clean tau = 0 case
+  cosine    blockage  1.22 dB + latency  0.00 dB =  1.23 dB
+  specular  blockage  1.08 dB + latency 12.99 dB = 14.07 dB
+
+wrote: fig8_blockage.pdf, fig8_blockage.png
+### day6_blockage.py finished in 152 s (exit 0)
+
+################################################################
+### day7_noise.py   started 22:21:07
+################################################################
+[day7_noise]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True  [sweeps diffuse on/off by design]
+A. AMBIENT SHOT NOISE
+   patches: 288, total surface 110 m^2
+
+ambient case                       I_bg   mean SNR    cost
+none (paper's baseline)          0.00uA      48.79    0.00
+their p.6 aside, 0.12 uW         0.06uA      48.79    0.00
+moderate indoor, 740 uA        740.00uA      45.67    3.12
+bright / skylight, 5100 uA    5100.00uA      39.63    9.16
+
+   Their p.6 claim is that ambient adds ~0.49 dB and leaves >4.5 dB
+   of margin. Their own 0.12 uW figure implies I_bg = 0.065 uA, which
+   costs essentially nothing -- so the claim is self-consistent but
+   rests on an ambient level ~10,000x below the value standard VLC
+   noise models assume (740 uA). Which is right depends on the optical
+   bandpass filter, which the paper does not specify. Report the sweep.
+
+B. FIRST-ORDER DIFFUSE REFLECTIONS (wall rho = 0.8)
+   LoS       41.65 uW
+   diffuse    5.36 uW (12.9% of LoS)
+   SNR: LoS only 48.79 dB -> with diffuse 49.87 dB (+1.09 dB)
+
+C. EFFECT ON THE STALENESS RESULT (50 seeds)
+
+model     channel                   SNR@0       20       50      100      500
+cosine    paper's model             71.50     0.00     0.00     0.01     0.12
+cosine    + diffuse                 71.79     0.00     0.00     0.01     0.12
+cosine    + diffuse + ambient       70.04     0.00     0.00     0.01     0.14
+specular  paper's model             64.88    10.46    14.70    16.85    17.36
+specular  + diffuse                 65.29     9.54    13.30    15.22    15.67
+specular  + diffuse + ambient       62.86    10.03    13.91    15.88    16.34
+
+   Columns after SNR@0 are the stale-configuration penalty [dB].
+
+The floor: what survives when the configuration is fully stale
+  cosine    no diffuse   71.50 dB ->  71.37 dB at tau = 500 ms
+            + diffuse    71.79 dB ->  71.67 dB
+  specular  no diffuse   64.88 dB ->  47.51 dB at tau = 500 ms
+            + diffuse    65.29 dB ->  49.62 dB
+
+   Diffuse reflection needs no steering and cannot go stale, so it
+   raises the floor a stale IRS falls back to. It slightly REDUCES the
+   measured staleness penalty -- adding realism here helps the base
+   paper's position, which is worth saying plainly.
+
+wrote: fig9_augmented.pdf, fig9_augmented.png
+### day7_noise.py finished in 92 s (exit 0)
+
+################################################################
+### day8_proposed.py   started 22:22:39
+################################################################
+CONTROL COST PER UPDATE, K = 400 mirrors
+  closed-form bisector       39.8 us   (measured)
+  GA (frozen run, measured)   7690000 us   = 7.69 s
+  ratio                    193316x
+
+scheme                order                      fitness evals/update
+closed-form bisector  O(K)                                          0
+TLBO                  O(N_iter N_pop K)                        90,000
+GA                    O(N_iter N_pop K)                        45,000
+PSO                   O(N_iter N_pop K)                        45,000
+[day8_proposed]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
+
+50 seeds x 15 s, walking 1.0 m/s, model = specular, dt = 10 ms
+  built 50 traces
+  done slew = 10 ms
+  done slew = 20 ms
+  done slew = 50 ms
+
+Mean SNR [dB]. Position/velocity estimation error sigma = 0 is a genie predictor;
+quote the sigma > 0 rows.
+
+ slew  sigma            no IRS     metaheuristic       closed form        predictive   genie (tau = 0)
+  10ms  0.00m      49.48±0.62       49.59±0.66       60.81±1.62       65.04±1.00       65.05±1.00 
+  10ms  0.01m      49.48±0.62       49.59±0.66       60.81±1.62       59.72±1.57       65.05±1.00 
+  10ms  0.02m      49.48±0.62       49.59±0.66       60.81±1.62       55.37±1.73       65.05±1.00 
+  10ms  0.04m      49.48±0.62       49.59±0.66       60.81±1.62       52.61±1.43       65.05±1.00 
+  10ms  0.05m      49.48±0.62       49.59±0.66       60.81±1.62       51.43±1.20       65.05±1.00 
+  10ms  0.10m      49.48±0.62       49.59±0.66       60.81±1.62       50.16±0.86       65.05±1.00 
+  10ms  0.20m      49.48±0.62       49.59±0.66       60.81±1.62       49.68±0.70       65.05±1.00 
+  20ms  0.00m      49.48±0.62       49.59±0.66       55.37±2.36       65.00±1.01       65.05±1.00 
+  20ms  0.01m      49.48±0.62       49.59±0.66       55.37±2.36       59.70±1.57       65.05±1.00 
+  20ms  0.02m      49.48±0.62       49.59±0.66       55.37±2.36       55.36±1.73       65.05±1.00 
+  20ms  0.04m      49.48±0.62       49.59±0.66       55.37±2.36       52.61±1.43       65.05±1.00 
+  20ms  0.05m      49.48±0.62       49.59±0.66       55.37±2.36       51.43±1.20       65.05±1.00 
+  20ms  0.10m      49.48±0.62       49.59±0.66       55.37±2.36       50.16±0.85       65.05±1.00 
+  20ms  0.20m      49.48±0.62       49.59±0.66       55.37±2.36       49.69±0.69       65.05±1.00 
+  50ms  0.00m      49.48±0.62       49.59±0.66       51.07±1.28       64.61±1.01       65.05±1.00 
+  50ms  0.01m      49.48±0.62       49.59±0.66       51.07±1.28       59.47±1.58       65.05±1.00 
+  50ms  0.02m      49.48±0.62       49.59±0.66       51.07±1.28       55.26±1.72       65.05±1.00 
+  50ms  0.04m      49.48±0.62       49.59±0.66       51.07±1.28       52.58±1.42       65.05±1.00 
+  50ms  0.05m      49.48±0.62       49.59±0.66       51.07±1.28       51.42±1.19       65.05±1.00 
+  50ms  0.10m      49.48±0.62       49.59±0.66       51.07±1.28       50.16±0.85       65.05±1.00 
+  50ms  0.20m      49.48±0.62       49.59±0.66       51.07±1.28       49.69±0.70       65.05±1.00 
+
+Gain over the metaheuristic baseline [dB]
+ slew  sigma   closed form   predictive    genie
+  10ms  0.00m         11.22        15.44    15.46
+  10ms  0.01m         11.22        10.13    15.46
+  10ms  0.02m         11.22         5.78    15.46
+  10ms  0.04m         11.22         3.02    15.46
+  10ms  0.05m         11.22         1.84    15.46
+  10ms  0.10m         11.22         0.57    15.46
+  10ms  0.20m         11.22         0.09    15.46
+  20ms  0.00m          5.78        15.40    15.46
+  20ms  0.01m          5.78        10.11    15.46
+  20ms  0.02m          5.78         5.77    15.46
+  20ms  0.04m          5.78         3.02    15.46
+  20ms  0.05m          5.78         1.84    15.46
+  20ms  0.10m          5.78         0.57    15.46
+  20ms  0.20m          5.78         0.09    15.46
+  50ms  0.00m          1.48        15.01    15.46
+  50ms  0.01m          1.48         9.88    15.46
+  50ms  0.02m          1.48         5.67    15.46
+  50ms  0.04m          1.48         2.98    15.46
+  50ms  0.05m          1.48         1.82    15.46
+  50ms  0.10m          1.48         0.57    15.46
+  50ms  0.20m          1.48         0.09    15.46
+
+Fraction of the genie bound recovered
+ slew  sigma   closed form   predictive
+  10ms  0.00m           73%         100%
+  10ms  0.01m           73%          66%
+  10ms  0.02m           73%          37%
+  10ms  0.04m           73%          20%
+  10ms  0.05m           73%          12%
+  10ms  0.10m           73%           4%
+  10ms  0.20m           73%           1%
+  20ms  0.00m           37%         100%
+  20ms  0.01m           37%          65%
+  20ms  0.02m           37%          37%
+  20ms  0.04m           37%          20%
+  20ms  0.05m           37%          12%
+  20ms  0.10m           37%           4%
+  20ms  0.20m           37%           1%
+  50ms  0.00m           10%          97%
+  50ms  0.01m           10%          64%
+  50ms  0.02m           10%          37%
+  50ms  0.04m           10%          19%
+  50ms  0.05m           10%          12%
+  50ms  0.10m           10%           4%
+  50ms  0.20m           10%           1%
+
+======================================================================
+WHEN IS PREDICTION WORTH IT?
+======================================================================
+
+Pointing footprint at 3 m: 5.2 cm. Aim error of that order
+costs the whole IRS gain, whichever way the error arises.
+
+  reactive closed form : aim point is stale by v * tau_slew
+  predictive           : aim point carries the tracking error sigma
+
+So prediction only pays when the staleness it removes exceeds the
+estimation error it introduces:
+
+      v * tau_slew  >  sigma
+
+  slew  10 ms at 1.0 m/s -> staleness   1.0 cm; predict only if sigma < that
+  slew  20 ms at 1.0 m/s -> staleness   2.0 cm; predict only if sigma < that
+  slew  50 ms at 1.0 m/s -> staleness   5.0 cm; predict only if sigma < that
+
+Measured: which scheme wins (mean SNR, dB)
+                sigma=0.00    sigma=0.01    sigma=0.02    sigma=0.04    sigma=0.05    sigma=0.10    sigma=0.20
+  slew  10 ms  predict  4.2 reactive  1.1 reactive  5.4 reactive  8.2 reactive  9.4 reactive 10.7 reactive 11.1
+  slew  20 ms  predict  9.6  predict  4.3 reactive  0.0 reactive  2.8 reactive  3.9 reactive  5.2 reactive  5.7
+  slew  50 ms  predict 13.5  predict  8.4  predict  4.2  predict  1.5  predict  0.3 reactive  0.9 reactive  1.4
+
+  Sub-centimetre tracking is not available from VLC positioning, so
+  the ROBUST recommendation is the reactive closed form: it recovers
+  73% of the bound at 10 ms slew with no pose estimate at all, and its
+  performance is measured against an exact-position benchmark. Prediction is an
+  upgrade for systems that can localise to a few centimetres, not the
+  headline contribution.
+
+wrote: fig10_proposed.pdf, fig10_proposed.png
+### day8_proposed.py finished in 457 s (exit 0)
+
+################################################################
+### day9_ber.py   started 22:30:16
+################################################################
+[day9_ber]  FROZEN  N_SEEDS=50  N_DROPS=10000  diffuse=True
+(a) BER vs transmit power, 50 seeds, specular model, slew 10 ms, sigma 5 cm
+
+scheme                        mean H    P_t for BER = 3.8e-3
+no IRS                     2.636e-05                20.00 mW
+metaheuristic              2.641e-05                20.00 mW
+reactive closed form       1.211e-04                 3.86 mW
+predictive                 4.108e-05                10.36 mW
+genie                      1.917e-04                 2.00 mW
+
+Transmit-power saving at the FEC threshold, vs the metaheuristic:
+  reactive closed form      7.14 dB
+  predictive                2.86 dB
+  genie                    10.00 dB
+
+(b) Element sweep (their Fig. 6 shows 48-50 dB -> 85-92 dB over 0 -> 400 elements)
+
+    K   cosine SNR   specular SNR     gap
+   36        57.32          53.28    4.04
+   64        60.40          55.34    5.05
+  100        63.01          57.27    5.75
+  144        65.21          59.12    6.09
+  256        68.71          62.32    6.39
+  400        71.34          64.96    6.38
+  784        75.12          69.00    6.11
+ 1600        78.82          73.13    5.69
+
+  The overstatement grows with array size up to a point: the cosine
+  model lets every mirror contribute whatever its orientation, so its
+  gain scales with K more favourably than specular reflection allows.
+  The gap peaks near K = 256 and then declines, as the reflected path
+  comes to dominate the direct one in both arms. Extrapolations made
+  under the cosine model are optimistic by about the plateau, not by
+  a margin that keeps growing.
+
+wrote: fig11_ber.pdf, fig11_ber.png
+### day9_ber.py finished in 44 s (exit 0)
+
+################################################################
+### DIAGNOSTIC physical_c.py   started 22:31:00
+################################################################
+panel 1.0 x 1.0 m, 10x10 elements per panel, 400 elements total
+per-element area A_m = 0.01000 m^2 = 100.00 cm^2 (pitch 111.1 mm)
+detector area A_PD   = 0.00010 m^2 = 1.00 cm^2
+
+ratio  (projected element area) / (beam cross-section at the element)
+  median 441.8   mean 480
+  5th pct 157.9   95th pct 924.8
+  fraction >= 1 (element not the stop): 100.0 %
+
+physical per-element c = min(1, ratio):
+  median 1   mean 1
+
+The model as written uses c = 1 for every element.
+Overstatement factor at the median: 1x (0.0 dB of reflected power)
+
+           c   surface gain
+        1 (as published)    10.67 dB   (c = 1)
+  36/K (previous anchor)     2.12 dB   (c = 0.09)
+         physical median    10.67 dB   (c = 1)
+           physical mean    10.67 dB   (c = 1)
+### physical_c.py finished in 1 s (exit 0)
+
+################################################################
+### DIAGNOSTIC aperture_stop.py   started 22:31:00
+################################################################
+Divergence in the genuine aperture-stop regime
+(per-element c = min(1, projected area / cone), both models)
+
+ n/panel        K   median c   divergence   IRS/LoS
+      10      400     1.0000      2.27 dB       2.7
+      50    10000     1.0000      1.32 dB      62.5
+     100    40000     1.0000     -1.72 dB     248.2
+     150    90000     0.7341     -4.47 dB     545.1
+     250   250000     0.2642     -5.30 dB     632.0
+
+--- divergence against reflected-to-LoS ratio, c = 1, fixed panel ---
+       K   IRS/LoS   divergence
+      36       0.3      2.87 dB
+     144       0.9      5.08 dB
+     400       2.4      6.13 dB
+     784       4.4      6.33 dB
+    1600       8.9      6.18 dB
+
+--- aperture margin across the panel sweep (10x10 per panel) ---
+ panel [m]  A_m [cm^2]  min margin
+       0.5       25.00         19x
+       1.0      100.00         76x
+       2.0      400.00        301x
+       4.0     1600.00       1255x
+### aperture_stop.py finished in 17 s (exit 0)
+
+################################################################
+### DIAGNOSTIC noise_regime.py   started 22:31:18
+################################################################
+Divergence in SNR dB against the gain divergence Delta_H.
+Delta_H = 20 log10(H_cos / H_spec), free of the noise regime.
+(The optical power ratio is 10 log10 of the same quantity, half of this.)
+Diagnostic settings: uniform positions, face-up detector, no diffuse.
+
+     K   SNR div    Delta_H   ratio   IRS/LoS
+    36    3.12 dB     3.28 dB    0.95       0.3
+   144    5.35 dB     5.90 dB    0.91       1.0
+   400    6.32 dB     7.51 dB    0.84       2.8
+   784    6.44 dB     8.24 dB    0.78       5.3
+  1600    6.25 dB     8.75 dB    0.71      10.8
+
+SNR ~ H^2 when thermal noise dominates, so the SNR divergence
+equals Delta_H there; SNR ~ H when shot noise dominates, so it
+falls to Delta_H / 2. The ratio column is therefore 1.0 at the
+thermal limit and 0.5 at the shot limit. Delta_H rising while the
+SNR divergence falls is the link moving between the two.
+### noise_regime.py finished in 1 s (exit 0)
+
+################################################################
+### DIAGNOSTIC bisector_bound.py   started 22:31:19
+################################################################
+ alpha_min      bisector       refined    gap [dB]   predicted
+     0.10 deg    9.7586e-04    9.7586e-04     0.00000     0.00000
+     0.25 deg    9.7586e-04    9.7586e-04     0.00000     0.00001
+     0.50 deg    9.7586e-04    9.7586e-04     0.00001     0.00005
+     1.00 deg    9.7586e-04    9.7587e-04     0.00004     0.00018
+     2.00 deg    9.7586e-04    9.7591e-04     0.00019     0.00072
+     5.00 deg    9.7586e-04    9.7614e-04     0.00124     0.00450
+
+predicted = 10log10(1 + alpha^2 tan^2(theta_i) / 4pi^2), worst mirror
+### bisector_bound.py finished in 12 s (exit 0)
+
+################################################################
+### DIAGNOSTIC crossover.py   started 22:31:31
+################################################################
+       c   IRS gain   latency   blockage   lat-blk
+  0.0200    0.55 dB   0.55 dB   25.80 dB -25.25 dB
+  0.0344    0.91 dB   0.91 dB   21.52 dB -20.61 dB
+  0.0593    1.48 dB   1.48 dB   17.40 dB -15.92 dB
+  0.1021    2.35 dB   2.35 dB   13.58 dB -11.23 dB
+  0.1758    3.61 dB   3.61 dB   10.19 dB  -6.58 dB
+  0.3027    5.32 dB   5.32 dB    7.28 dB  -1.97 dB
+  0.5213    7.50 dB   7.50 dB    4.93 dB   2.57 dB
+  0.8975   10.11 dB  10.11 dB    3.10 dB   7.01 dB
+  1.5454   13.05 dB  13.05 dB    1.76 dB  11.28 dB
+  2.6611   16.17 dB  16.17 dB    0.82 dB  15.35 dB
+
+crossover (latency = blockage) at c = 0.397, where the IRS gain over the unaided link is 6.3 dB
+
+published point c = 1: IRS gain 18.55 dB is off-scale; at c=1 exactly:
+  IRS gain 10.67 dB, latency 10.67 dB, blockage 2.80 dB
+### crossover.py finished in 1 s (exit 0)
+
+ALL_FREEZE_RUNS_COMPLETE

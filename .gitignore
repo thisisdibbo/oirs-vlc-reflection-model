@@ -23,6 +23,8 @@ venv/
 # freeze_run.log IS tracked: it is the evidence for every number in the paper.
 # The *.log rule above would otherwise swallow it, so un-ignore it here.
 !freeze_run.log
+# The logs in archive/ are the source of the timings the paper quotes.
+!archive/*.log
 
 # ---------------------------------------------------------------------------
 # Scratch files from development
