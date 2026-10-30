@@ -9,7 +9,7 @@ Simulation code for the paper:
 > Md. Mahin Rahman, Sadia Tabassum, Mumtazah Mubasshirah, Tahiya Hossain,
 > Subaita Nujabah.
 >
-> *Manuscript in preparation for Optical and Quantum Electronics.* This
+> *Under peer review at Optical and Quantum Electronics (Springer).* This
 > repository is the code and the frozen run behind it; the manuscript itself is
 > not published here.
 
